@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFormLayout
 from Orange.data.pandas_compat import table_from_frame
 from orangecontrib.text import Corpus
-from orangewidget.utils.widgetpreview import WidgetPreview
+from Orange.widgets.utils.widgetpreview import WidgetPreview
 
 from orangehackathon.utils.mail2tsv import parse_enron_mail
 
