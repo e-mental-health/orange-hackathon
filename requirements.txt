@@ -1,2 +1,2 @@
 Orange3>=3.4.3
-Orange-Text
+Orange3-Text
