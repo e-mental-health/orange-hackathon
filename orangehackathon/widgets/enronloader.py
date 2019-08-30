@@ -15,7 +15,7 @@ from orangehackathon.utils.mail2tsv import parse_enron_mail
 class EnronLoader(OWWidget):
     name = "Load enron mail source directory"
     description = "Read mails directory"
-    icon = "icons/MarkDuplicates.svg"
+    icon = "icons/turtle.svg"
     category = "Hackathon"
     directory = ''
     _glob='**/inbox/*.'
