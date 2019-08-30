@@ -1,5 +1,3 @@
-import rpy2.robjects as robjects
-
 from Orange.widgets.widget import OWWidget, Output, Input
 from Orange.data.table import Table
 
@@ -28,6 +26,7 @@ class R(OWWidget):
 
     @Inputs.table
     def callR(self, table):
+        import rpy2.robjects as robjects
         if table:
             r_source = robjects.r['source']
             r_source(str(r_path))
