@@ -40,7 +40,7 @@ class SortEmails(OWWidget):
         self.label = gui.widgetLabel(self.controlArea)
         self.optionsBox = gui.widgetBox(self.controlArea, "Options")
         gui.checkBox(self.optionsBox, self, 'filter_asc', "Filter in ascending order")
-        gui.button(self.optionsBox, self, "Filter", callback=self.filterEmails)
+        gui.button(self.optionsBox, self, "Filter", callback=self.process_channel)
         
     def filterEmails(self, corpus):
         date_key = "date"

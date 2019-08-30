@@ -141,7 +141,7 @@ class Daap(OWWidget):
     @Inputs.corpus
     def inputAnalysis(self, corpus):
         self.resetWidget()
-        self.corpus= corpus
+        self.corpus = corpus
         OWWidget.progressBarInit(self)
         if self.corpus is None:
             self.label.setText("No corpus available")
@@ -155,4 +155,7 @@ class Daap(OWWidget):
                 OWWidget.progressBarSet(self,len(self.corpus))
                 owfeatureconstructor.OWFeatureConstructor()
                 self.corpus.metas[msgId][self.fieldIdExtra]=averageWeights
-        self.Outputs.corpus.send(self.corpus)    
+        self.Outputs.corpus.send(self.corpus) 
+        
+        
+   
