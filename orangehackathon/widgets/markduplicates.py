@@ -11,13 +11,14 @@ from Orange.data.domain import filter_visible
 from itertools import chain
 from nltk import word_tokenize
 import re
+import sys
 import datetime
 import numpy as np
 
 class MarkDuplicates(OWWidget):
     name = "Mark Duplicates"
     description = "Mark duplicate text parts in corpus"
-    icon = "icons/MarkDuplicates.svg"
+    icon = "icons/globe.svg"
     N = 20
     EMPTYLIST = []
     EMPTYSTRING = ""
@@ -82,7 +83,6 @@ class MarkDuplicates(OWWidget):
         return(duplicateRefStartEnds)
 
     def markDuplicates(self,message,duplicateRefStartEnds):
-        # self.label.setText(str(duplicateRefStartEnds))
         words = message.split()
         outText = self.EMPTYSTRING
         wordIndex = 0
@@ -104,34 +104,45 @@ class MarkDuplicates(OWWidget):
         text = " ".join(word_tokenize(text))
         return(text)
 
-    def getFieldId(self,corpus,fieldName):
-        fieldId = -1
+    def getFieldValue(self,corpus,fieldName,rowId):
+        for i in range(0,len(corpus.domain)):
+            if corpus.domain[i].name == fieldName:
+                return(corpus[rowId].list[i])
         for i in range(0,len(corpus.domain.metas)):
-            if str(corpus.domain.metas[i]) == fieldName:
-                fieldId = i
-        return(fieldId)
+            if corpus.domain.metas[i].name == fieldName:
+                return(corpus[rowId].metas[i])
+        sys.exit("getFieldValue: field name not found: "+fieldName)
+
+    def setFieldValue(self,corpus,fieldName,rowId,value):
+        for i in range(0,len(corpus.domain)):
+            if corpus.domain[i].name == fieldName:
+                # 20190830 assignment does not work: imutable object?
+                corpus[rowId].list[i] = value
+                return
+        for i in range(0,len(corpus.domain.metas)):
+            if corpus.domain.metas[i].name == fieldName:
+                corpus[rowId].metas[i] = value
+                return
+        sys.exit("setFieldValue: field name not found: "+fieldName)
 
     @Inputs.corpus
     def inputAnalysis(self, corpus):
         self.resetWidget()
         self.corpus = corpus
         OWWidget.progressBarInit(self)
-        duplicateRefStartEndsArray = list(self.EMPTYLIST)
         if self.corpus is None:
             self.label.setText("No corpus available")
         else:
+            self.label.setText("Processing corpus")
             text = self.EMPTYSTRING
-            self.fieldIdDate = self.getFieldId(self.corpus,self.FIELDNAMEDATE)
-            self.fieldIdText = self.getFieldId(self.corpus,self.FIELDNAMETEXT)
-            self.fieldIdExtra = self.getFieldId(self.corpus,self.FIELDNAMEEXTRA)
-            for msgId in range(0,len(self.corpus.metas)):
-                date = datetime.datetime.fromtimestamp(self.corpus.metas[msgId][self.fieldIdDate],tz=datetime.timezone.utc)
-                text = self.prepareText(str(self.corpus.metas[msgId][self.fieldIdText]))
+            for msgId in range(0,len(self.corpus)):
+                dateFieldValue = self.getFieldValue(corpus,self.FIELDNAMEDATE,msgId)
+                textFieldValue = self.getFieldValue(corpus,self.FIELDNAMETEXT,msgId)
+                date = datetime.datetime.fromtimestamp(dateFieldValue,tz=datetime.timezone.utc)
+                text = self.prepareText(textFieldValue)
                 duplicateRefStartEnds = self.countPhrases(date,text,msgId)
-                duplicateRefStartEndsArray.append([list(duplicateRefStartEnds)])
-                self.label.setText(str(duplicateRefStartEnds))
-                self.corpus.metas[msgId][self.fieldIdExtra] = list(duplicateRefStartEnds)
-                self.corpus.metas[msgId][self.fieldIdText] = self.markDuplicates(text,duplicateRefStartEnds)
-                OWWidget.progressBarSet(self,100*(msgId+1)/len(self.corpus.metas))
-        # np.append(self.corpus.metas,np.array(duplicateRefStartEndsArray),axis=1) 
+                self.setFieldValue(corpus,self.FIELDNAMEEXTRA,msgId,list(duplicateRefStartEnds))
+                markedText = self.markDuplicates(text,duplicateRefStartEnds)
+                self.setFieldValue(corpus,self.FIELDNAMETEXT,msgId,markedText)
+                OWWidget.progressBarSet(self,100*(msgId+1)/len(self.corpus))
         self.Outputs.corpus.send(self.corpus)
