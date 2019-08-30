@@ -42,7 +42,7 @@ class SortEmails(OWWidget):
         gui.checkBox(self.optionsBox, self, 'filter_asc', "Filter in ascending order")
         gui.button(self.optionsBox, self, "Filter", callback=self.filterEmails)
         
-    def filterEmails(corpus):
+    def filterEmails(self, corpus):
         date_key = "date"
         try:
             new_index = sorted(range(corpus.metas.shape[0]), key=lambda x: corpus[x][date_key].value)
