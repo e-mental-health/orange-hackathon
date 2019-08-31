@@ -19,6 +19,13 @@ from AnyQt.QtWidgets import QGridLayout, QLabel
 from AnyQt.QtCore import Qt
 from pathlib import Path
 from os.path import exists
+try:
+    import tkinter as tk
+    import tkfilebrowser
+    found_tkinter = True
+except:
+    print("ERROR: please install tkinter and tkfilebrowser for best experience")
+    found_tkinter = False
 import os
 import json
 
@@ -68,6 +75,10 @@ class MailTsv(OWWidget):
         layout.addWidget(label, 0, 1)
         layout.addWidget(lineEdit, 0, 2)
 
+        if found_tkinter:
+            button = gui.button(None, self, "Browse", callback=self.browse_folder_input)
+            layout.addWidget(button, 0, 3)
+
         checkbox = gui.checkBox(None, self, 'enable_filter', "Enable filter")
         layout.addWidget(checkbox, 2, 1)
         layout.addWidget(QLabel("Only include files from the subdirectories:"), 2, 2)
@@ -96,6 +107,10 @@ class MailTsv(OWWidget):
         layout2.addWidget(label3, 1, 1)
         layout2.addWidget(lineEdit3, 1, 2)
 
+        if found_tkinter:
+            button2 = gui.button(None, self, "Browse", callback=self.browse_folder_output)
+            layout2.addWidget(button2, 0, 3)
+
         # Process button
         layout3 = QGridLayout()
         gui.widgetBox(self.controlArea, margin=0, orientation=layout3)
@@ -103,6 +118,16 @@ class MailTsv(OWWidget):
         btn2 = gui.button(None, self, "Output file > corpus", callback=self.output_corpus)
         layout3.addWidget(btn1, 0, 0)
         layout3.addWidget(btn2, 0, 1)
+
+    def browse_folder_input(self):
+        if found_tkinter:
+            tk.Tk().withdraw()
+            self.input_directory = tkfilebrowser.askopendirname(title="Select input folder")
+
+    def browse_folder_output(self):
+        if found_tkinter:
+            tk.Tk().withdraw()
+            self.output_directory = tkfilebrowser.askopendirname(title="Select output folder")
 
     def _load_settings(self, path="mail-tsv-settings.json"):
         """ load the input settings """
