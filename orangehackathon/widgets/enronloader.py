@@ -14,7 +14,7 @@ from orangehackathon.utils.mail2tsv import parse_enron_mail_old as parse_enron_m
 
 class EnronLoader(OWWidget):
     name = "Load enron mail source directory"
-    description = "Read mails directory"
+    description = "Read mails directory **Depreciated: use Mail2Tsv widget for better results"
     icon = "icons/turtle.svg"
     category = "Hackathon"
     directory = ''
@@ -66,6 +66,7 @@ class EnronLoader(OWWidget):
                 placeholderText=""))
 
         form.addRow(gui.button(None, self, 'load', self.load))
+        self.warning("Depreciated module: please use Mail2Tsv")
 
 
 if __name__ == "__main__":

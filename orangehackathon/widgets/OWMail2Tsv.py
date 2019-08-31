@@ -26,7 +26,7 @@ import json
 class MailTsv(OWWidget):
     name = "Mail2Tsv"
     description = "Convert raw e-mail files to tsv files, extracting all important information"
-    icon = "icons/sort-icon.svg"
+    icon = "icons/export-icon.svg"
     priority = 1010
     
     input_directory = ""
