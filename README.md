@@ -9,7 +9,7 @@ The contact person for this hackathon is Erik Tjong Kim Sang e.tjongkimsang@esci
 
 ## Widgets
 **Mail2Tsv**: 
-Sonvert email files to .tsv files, for easy importing as a corpus.
+Convert email files to .tsv files, for easy importing as a corpus.
 
 _Instructions:_ select your input folder, and fill in the filter. All files from the subdirectories will be attempted to convert. By default the filter is set to all_documents/ and inbox/, resulting in only the conversion of files inside those subdirectories. 
 
