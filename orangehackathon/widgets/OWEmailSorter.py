@@ -49,17 +49,16 @@ class SortEmails(OWWidget):
     def filterEmails(self, corpus):
         date_key = "date"
         try:
-            print(corpus[0][date_key], type(corpus[0][date_key]))
             if isinstance(corpus[0][date_key].value, float):
                 sort_key = lambda x: corpus[x][date_key].value
             else:
-                sort_key = lambda x: dt.datetime.strptime(corpus[x][date_key], self.date_format)
+                sort_key = lambda x: dt.datetime.strptime(corpus[x][date_key].value, self.date_format)
 
             new_index = sorted(range(corpus.metas.shape[0]), key=sort_key)
             if not self.filter_asc:
                 new_index.reverse()
             corpus.metas = corpus.metas[new_index]
-        except ValueError: # no date_key in corpus
+        except ValueError:  # no date_key in corpus
             print(f"[Module {self.name}] Error: no column called {date_key}")
         
         return corpus
