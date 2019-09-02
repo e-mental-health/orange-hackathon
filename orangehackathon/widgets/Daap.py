@@ -21,11 +21,11 @@ import numpy as np
 class Daap(OWWidget):
     name="Daap analysis"
     description= 'Do a Daap analysis on the selected corpus'
-    icon= "icons/MarkDuplicates.svg"
+    icon= "icons/recycle.svg"
     FIELDNAMEDATE = "date"
     FIELDNAMETEXT = "text"
     FIELDNAMEEXTRA = "extra"
-    DAAPDICTFILE= 'Dicts/WRAD.Wt'
+    DAAPDICTFILE= '/home/erikt/projects/e-mental-health/enron/orange-hackathon/orangehackathon/widgets/Dicts/WRAD.Wt'
     COMMAND = sys.argv[0]
     movingWeights = {}
     WINDOWSIZE = 100
@@ -141,7 +141,7 @@ class Daap(OWWidget):
     @Inputs.corpus
     def inputAnalysis(self, corpus):
         self.resetWidget()
-        self.corpus = corpus
+        self.corpus= corpus
         OWWidget.progressBarInit(self)
         if self.corpus is None:
             self.label.setText("No corpus available")
@@ -155,7 +155,4 @@ class Daap(OWWidget):
                 OWWidget.progressBarSet(self,len(self.corpus))
                 owfeatureconstructor.OWFeatureConstructor()
                 self.corpus.metas[msgId][self.fieldIdExtra]=averageWeights
-        self.Outputs.corpus.send(self.corpus) 
-        
-        
-   
+        self.Outputs.corpus.send(self.corpus)    
