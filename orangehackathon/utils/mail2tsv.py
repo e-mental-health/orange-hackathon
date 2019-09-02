@@ -11,7 +11,6 @@ import re
 import sys
 import time
 
-COMMAND = sys.argv[0]
 IDFIELD = "id"
 FILEFIELD = "file"
 FROMFIELD = "from"
@@ -82,13 +81,12 @@ def parse_enron_mail_old(inFileName):
                     fromField += line
                 else:
                     sys.exit(
-                        COMMAND + ": problem processing extra line for field " + lastHeading + " in file " + inFileName)
+                        "mail2tsv.py: problem processing extra line for field " + lastHeading + " in file " + inFileName)
             elif line == "":
                 inHeading = False
 
     if inFileName != "": inFile.close()
-    return {FILEFIELD: inFileName, FROMFIELD: fromField, TOFIELD: toField, DATEFIELD: dateField,
-            SUBJECTFIELD: subjectField, TEXTFIELD: textField, EXTRAFIELD: EMPTYSTRING}
+    return dateField, inFileName, fromField, toField, subjectField, textField, EMPTYSTRING
 
 
 def mail2tsv(inFileName, csvwriter, counter, baseFile=None):
@@ -125,7 +123,7 @@ def mail2tsv(inFileName, csvwriter, counter, baseFile=None):
                 if lastHeading == "To": toField += line
                 elif lastHeading == "Subject": subjectField += line
                 elif lastHeading == "From": fromField += line
-                else: sys.exit(COMMAND+": problem processing extra line for field "+lastheading+" in file "+inFileName)
+                else: sys.exit("mail2tsv.py: problem processing extra line for field "+lastheading+" in file "+inFileName)
             elif line == "":
                 inHeading = False
 
