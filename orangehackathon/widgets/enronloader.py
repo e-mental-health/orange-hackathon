@@ -8,13 +8,14 @@ from PyQt5.QtWidgets import QFormLayout
 from Orange.data.pandas_compat import table_from_frame
 from orangecontrib.text import Corpus
 from Orange.widgets.utils.widgetpreview import WidgetPreview
+from Orange.data import Table, Domain
+from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, StringVariable
 
 from orangehackathon.utils.mail2tsv import parse_enron_mail_old as parse_enron_mail
 
-
 class EnronLoader(OWWidget):
     name = "Load enron mail source directory"
-    description = "Read mails directory **Depreciated: use Mail2Tsv widget for better results"
+    description = "Read mails directory"
     icon = "icons/turtle.svg"
     category = "Hackathon"
     directory = ''
@@ -36,7 +37,14 @@ class EnronLoader(OWWidget):
                 print(e)
             self.progress.advance()
 
-        table = table_from_frame(pd.DataFrame(mails))
+        domain = Domain([TimeVariable.make("date")], \
+                  metas=[StringVariable.make("file"), \
+                         StringVariable.make("from"), \
+                         StringVariable.make("to"), \
+                         StringVariable.make("subject"), \
+                         StringVariable.make("text"), \
+                         StringVariable.make("extra")])
+        table = Table.from_list(domain,mails)
         self.Outputs.data.send(Corpus.from_table(table.domain, table))
 
     def __init__(self):
@@ -66,7 +74,6 @@ class EnronLoader(OWWidget):
                 placeholderText=""))
 
         form.addRow(gui.button(None, self, 'load', self.load))
-        self.warning("Depreciated module: please use Mail2Tsv")
 
 
 if __name__ == "__main__":
