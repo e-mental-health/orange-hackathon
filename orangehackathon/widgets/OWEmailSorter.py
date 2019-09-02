@@ -57,7 +57,7 @@ class SortEmails(OWWidget):
             new_index = sorted(range(corpus.metas.shape[0]), key=sort_key)
             if not self.filter_asc:
                 new_index.reverse()
-            corpus.metas = corpus.metas[new_index]
+            corpus = corpus[new_index]
         except ValueError:  # no date_key in corpus
             print(f"[Module {self.name}] Error: no column called {date_key}")
         
@@ -71,10 +71,9 @@ class SortEmails(OWWidget):
             corpus = self.corpus
     
         if corpus:
-            print(f"[Module: {self.name}] Processing emails")
             corpus = self.filterEmails(corpus)                       
             self.Outputs.out_channel.send(corpus)
         else:
-            print(f"[Module: {self.name}] Getting empty corpus")
+            print(f"[Module: {self.name}] Warning: empty corpus")
         
     
