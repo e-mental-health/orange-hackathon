@@ -21,3 +21,8 @@ Once a batch of emails is converted, it will be automatically send them out as a
 Sorts emails converted by the Mail2Tsv widget in chronological order, based on the "date" column. 
 
 _Instructions:_ No interaction is required, it will start automatically once it receives an input. Clicking on the widget will give the option to sort in ascending, or descending order.
+
+## External data
+
+The WRAD.Wt dictionary used by the module DAAP can be downloaded from
+[https://github.com/DAAP/WRAD](https://github.com/DAAP/WRAD)
