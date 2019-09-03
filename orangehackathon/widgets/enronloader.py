@@ -19,7 +19,7 @@ class EnronLoader(OWWidget):
     icon = "icons/turtle.svg"
     category = "Hackathon"
     directory = ''
-    _glob='**/inbox/*.'
+    _glob='**/*.' # all files with names ending in . (*.) in all subdirectories (**)
 
     class Outputs:
         data = Output("Corpus", Corpus)
@@ -37,10 +37,10 @@ class EnronLoader(OWWidget):
                 print(e)
             self.progress.advance()
 
-        domain = Domain([TimeVariable.make("date")], \
+        domain = Domain([TimeVariable.make("date"), \
+                         DiscreteVariable.make("from",set([x[1] for x in mails])), \
+                         DiscreteVariable.make("to",  set([x[2] for x in mails]))], \
                   metas=[StringVariable.make("file"), \
-                         StringVariable.make("from"), \
-                         StringVariable.make("to"), \
                          StringVariable.make("subject"), \
                          StringVariable.make("text"), \
                          StringVariable.make("extra")])
