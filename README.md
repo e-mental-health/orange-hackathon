@@ -28,6 +28,8 @@ The WRAD.Wt dictionary used by the module DAAP can be downloaded from
 
 [https://github.com/DAAP/WRAD](https://github.com/DAAP/WRAD)
 
+Note that we also use the [text module](https://github.com/biolab/orange3-text) of Orange3
+
 ## Examples
 
 ### Small pipeline
