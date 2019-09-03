@@ -36,4 +36,4 @@ The WRAD.Wt dictionary used by the module DAAP can be downloaded from
 
 ### Medium pipeline
 
-<img src="https://raw.githubusercontent.com/e-mental-health/orange-hackathon/master/images/orange-medium.jpg" width="50%">
+<img src="https://raw.githubusercontent.com/e-mental-health/orange-hackathon/master/images/orange-medium.jpg" width="100%">
