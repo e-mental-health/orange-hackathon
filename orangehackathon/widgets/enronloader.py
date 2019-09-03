@@ -14,8 +14,8 @@ from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, Stri
 from orangehackathon.utils.mail2tsv import parse_enron_mail_old as parse_enron_mail
 
 class EnronLoader(OWWidget):
-    name = "Load enron mail source directory"
-    description = "Read mails directory"
+    name = "Enron mail loader"
+    description = "Reads Enron mails from directory"
     icon = "icons/turtle.svg"
     category = "Hackathon"
     directory = ''
@@ -24,35 +24,19 @@ class EnronLoader(OWWidget):
     class Outputs:
         data = Output("Corpus", Corpus)
 
-    def load(self):
-        files = list(Path(self.directory).glob(self._glob))
-        self.progress.advance(0)
-        mails = []
-        self.progress.iter = len(files)
-        for i, filename in enumerate(files):
-            try:
-                mails.append(parse_enron_mail(filename))
-            except Exception as e:
-                print(filename)
-                print(e)
-            self.progress.advance()
+    def corpusDomain(self,mails):
+        return(Domain([TimeVariable.make("date"),                                 \
+                       DiscreteVariable.make("from",set([x[1] for x in mails])),  \
+                       DiscreteVariable.make("to",  set([x[2] for x in mails]))], \
+                metas=[StringVariable.make("file"),                               \
+                       StringVariable.make("subject"),                            \
+                       StringVariable.make("text"),                               \
+                       StringVariable.make("extra")]))
 
-        domain = Domain([TimeVariable.make("date"), \
-                         DiscreteVariable.make("from",set([x[1] for x in mails])), \
-                         DiscreteVariable.make("to",  set([x[2] for x in mails]))], \
-                  metas=[StringVariable.make("file"), \
-                         StringVariable.make("subject"), \
-                         StringVariable.make("text"), \
-                         StringVariable.make("extra")])
-        table = Table.from_list(domain,mails)
-        self.Outputs.data.send(Corpus.from_table(table.domain, table))
-
-    def __init__(self):
-        super().__init__()
-        self.progress = gui.ProgressBar(self, 100)
+    def drawWindow(self):
         form = QFormLayout()
         form.setFieldGrowthPolicy(form.AllNonFixedFieldsGrow)
-        form.setVerticalSpacing(25)
+        form.setVerticalSpacing(10)
         form.setLabelAlignment(Qt.AlignLeft)
         gui.widgetBox(self.controlArea, True, orientation=form)
         form.addRow(
@@ -63,7 +47,6 @@ class EnronLoader(OWWidget):
                 orientation=Qt.Horizontal,
                 tooltip="Tooltip",
                 placeholderText="Directory"))
-
         form.addRow(
             "glob pattern:",
             gui.lineEdit(
@@ -72,9 +55,28 @@ class EnronLoader(OWWidget):
                 orientation=Qt.Horizontal,
                 tooltip="Tooltip",
                 placeholderText=""))
-
         form.addRow(gui.button(None, self, 'load', self.load))
 
+    def load(self):
+        files = list(Path(self.directory).glob(self._glob))
+        mails = []
+        self.progress.iter = len(files)
+        for i, filename in enumerate(files):
+            try:
+                mails.append(parse_enron_mail(filename))
+            except Exception as e:
+                print(filename)
+                print(e)
+            self.progress.advance()
+
+        domain = self.corpusDomain(mails)
+        table = Table.from_list(domain,mails)
+        self.Outputs.data.send(Corpus.from_table(table.domain, table))
+
+    def __init__(self):
+        super().__init__()
+        self.progress = gui.ProgressBar(self, 10)
+        self.drawWindow()
 
 if __name__ == "__main__":
     WidgetPreview(EnronLoader).run()
