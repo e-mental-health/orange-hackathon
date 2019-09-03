@@ -25,4 +25,15 @@ _Instructions:_ No interaction is required, it will start automatically once it 
 ## External data
 
 The WRAD.Wt dictionary used by the module DAAP can be downloaded from
+
 [https://github.com/DAAP/WRAD](https://github.com/DAAP/WRAD)
+
+## Examples
+
+### Small pipeline
+
+<img src="https://raw.githubusercontent.com/e-mental-health/orange-hackathon/master/images/orange-small.jpg" width="25%">
+
+### Medium pipeline
+
+<img src="https://raw.githubusercontent.com/e-mental-health/orange-hackathon/master/images/orange-medium.jpg" width="25%">
