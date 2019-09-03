@@ -18,7 +18,8 @@ import re
 import datetime
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
+from Orange.data import Table, Domain
+from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, StringVariable
 
 class Unpackcell(OWWidget):
     name="Unpack cell"
@@ -33,7 +34,7 @@ class Unpackcell(OWWidget):
         corpus= Input("Corpus", Corpus)
         
     class Outputs:
-        table= Output("Table", Table)
+        table = Output("Table", Table)
 
     def resetWidget(self):
         self.corpus = None
@@ -42,38 +43,33 @@ class Unpackcell(OWWidget):
     def __init__(self):
         super().__init__()
         self.label= gui.widgetLabel(self.controlArea)
-        self.progress= gui.ProgressBar(self, 100)
         self.resetWidget()
 
-    def getFieldId(self,corpus,fieldName):
-        fieldId = -1
+    def getFieldValue(self,corpus,fieldName,rowId):
+        for i in range(0,len(corpus.domain)):
+            if corpus.domain[i].name == fieldName:
+                return(corpus[rowId].list[i])
         for i in range(0,len(corpus.domain.metas)):
-            if str(corpus.domain.metas[i]) == fieldName:
-                fieldId = i
-        return(fieldId)
-
+            if corpus.domain.metas[i].name == fieldName:
+                return(corpus[rowId].metas[i])
+        sys.exit("getFieldValue: field name not found: "+fieldName)
 
     @Inputs.corpus
     def inputAnalysis(self, corpus):
         self.resetWidget()
         self.corpus= corpus
         if self.corpus is None:
+            print("Unpack cell: No corpus available")
             self.label.setText("No corpus available")
         else:
-            text = self.EMPTYSTRING
-            self.fieldIdExtra = self.getFieldId(self.corpus,self.FIELDNAMEEXTRA)
-            self.fieldIdText = self.getFieldId(self.corpus,self.FIELDNAMETEXT)
-            for msgId in range(0,len(self.corpus.metas)):
-                if self.corpus.metas[msgId][self.fieldIdExtra] is not None:
-                    text=str(self.corpus.metas[msgId][self.fieldIdExtra])
-                else:
-                    text=str(self.corpus.metas[msgId][self.fieldIdText])
-                data=text[:-1]
-                data=data[1:].split(',')
-                data=list(map(float,data))
-                datafra=pd.DataFrame(data)
-                datafra['new_col'] = range(1, len(datafra) + 1)
-                self.table=pandas_compat.table_from_frame(datafra)                    
-        self.Outputs.table.send(self.table)    
-
-    
+            self.label.setText("Processing corpus")
+            data = []
+            valueId = 0
+            for msgId in range(0,len(self.corpus)):
+                date = self.getFieldValue(corpus,self.FIELDNAMEDATE,msgId)
+                for value in self.getFieldValue(corpus,self.FIELDNAMEEXTRA,msgId):
+                     data.append([valueId,date,value])
+                     valueId += 1
+            domain = Domain([ContinuousVariable.make("id"),TimeVariable.make("date"),ContinuousVariable.make("extra")],metas=[])
+            table = Table.from_list(domain,data)
+            self.Outputs.table.send(table)    
