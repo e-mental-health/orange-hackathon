@@ -32,7 +32,7 @@ The WRAD.Wt dictionary used by the module DAAP can be downloaded from
 
 ### Small pipeline
 
-<img src="https://raw.githubusercontent.com/e-mental-health/orange-hackathon/master/images/orange-small.jpg" width="50%">
+<img src="https://raw.githubusercontent.com/e-mental-health/orange-hackathon/master/images/orange-small.jpg" width="60%">
 
 ### Medium pipeline
 
