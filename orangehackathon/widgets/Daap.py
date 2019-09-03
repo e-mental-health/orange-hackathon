@@ -17,6 +17,8 @@ from nltk import word_tokenize
 import re
 import datetime
 import numpy as np
+from Orange.data import Table, Domain
+from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, StringVariable
 
 class Daap(OWWidget):
     name="Daap analysis"
@@ -32,20 +34,18 @@ class Daap(OWWidget):
     EMPTYSTRING = ""
     
     class Inputs:
-        corpus= Input("Corpus", Corpus)
+        corpus = Input("Corpus", Corpus)
         
     class Outputs:
-        corpus= Output("Corpus", Corpus)
+        table = Output("Corpus", Table)
         
     def resetWidget(self):
-        self.corpus = None
+        self.progress= gui.ProgressBar(self, 10)
         
     def __init__(self):
         super().__init__()
-        self.label= gui.widgetLabel(self.controlArea)
-        self.progress= gui.ProgressBar(self, 100)
+        self.label = gui.widgetLabel(self.controlArea)
         self.resetWidget()
-        
         
     def prepareText(self,text):
         text = re.sub("</*line>"," ",text)
@@ -131,28 +131,36 @@ class Daap(OWWidget):
         averageWeights = self.computeaverageWeights(weightList,windowSize)
         return(averageWeights)
 
-    def getFieldId(self,corpus,fieldName):
-        fieldId = -1
+    def getFieldValue(self,corpus,fieldName,rowId):
+        for i in range(0,len(corpus.domain)):
+            if corpus.domain[i].name == fieldName:
+                return(corpus[rowId].list[i])
         for i in range(0,len(corpus.domain.metas)):
-            if str(corpus.domain.metas[i]) == fieldName:
-                fieldId = i
-        return(fieldId)
-    
+            if corpus.domain.metas[i].name == fieldName:
+                return(corpus[rowId].metas[i])
+        sys.exit("getFieldValue: field name not found: "+fieldName)
+
     @Inputs.corpus
     def inputAnalysis(self, corpus):
         self.resetWidget()
-        self.corpus= corpus
         OWWidget.progressBarInit(self)
-        if self.corpus is None:
+        if corpus is None:
             self.label.setText("No corpus available")
         else:
+            self.label.setText("Processing corpus...")
             text = self.EMPTYSTRING
-            self.fieldIdExtra = self.getFieldId(self.corpus,self.FIELDNAMEEXTRA)
-            self.fieldIdText = self.getFieldId(self.corpus,self.FIELDNAMETEXT)
-            for msgId in range(0,len(self.corpus.metas)):
-                text=self.prepareText(str(self.corpus.metas[msgId][self.fieldIdText]))
+            data = []
+            valueId = 0
+            self.progress.iter = len(corpus)
+            for msgId in range(0,len(corpus)):
+                self.progress.advance()
+                dateValue = self.getFieldValue(corpus,self.FIELDNAMEDATE,msgId)
+                textValue = self.getFieldValue(corpus,self.FIELDNAMETEXT,msgId)
+                text = self.prepareText(textValue)
                 averageWeights = self.daap(text)
-                OWWidget.progressBarSet(self,len(self.corpus))
-                owfeatureconstructor.OWFeatureConstructor()
-                self.corpus.metas[msgId][self.fieldIdExtra]=averageWeights
-        self.Outputs.corpus.send(self.corpus)    
+                for value in averageWeights:
+                     data.append([valueId,dateValue,value])
+                     valueId += 1
+            domain = Domain([ContinuousVariable.make("id"),TimeVariable.make("date"),ContinuousVariable.make("extra")],metas=[])
+            table = Table.from_list(domain,data)
+            self.Outputs.table.send(table)    
