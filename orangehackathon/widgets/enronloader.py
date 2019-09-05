@@ -58,6 +58,7 @@ class EnronLoader(OWWidget):
         form.addRow(gui.button(None, self, 'load', self.load))
 
     def load(self):
+        OWWidget.progressBarInit(self)
         files = list(Path(self.directory).glob(self._glob))
         mails = []
         self.progress.iter = len(files)
