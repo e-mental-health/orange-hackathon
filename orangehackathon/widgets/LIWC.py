@@ -12,7 +12,7 @@ from orangecontrib.text.corpus import Corpus
 class LIWC(OWWidget):
     name = "LIWC"
     description = "Applies LIWC to each document in corpus"
-    icon = "icons/LIWC.svg"
+    icon = "icons/compass.svg"
     N = 20
     EMPTYLIST = []
     EMPTYSTRING = ""

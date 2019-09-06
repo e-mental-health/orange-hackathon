@@ -16,7 +16,7 @@ from orangehackathon.utils.mail2tsv import parse_enron_mail_old as parse_enron_m
 class EnronLoader(OWWidget):
     name = "Enron mail loader"
     description = "Reads Enron mails from directory"
-    icon = "icons/turtle.svg"
+    icon = "icons/e.svg"
     category = "Hackathon"
     directory = ''
     _glob='**/*.' # all files with names ending in . (*.) in all subdirectories (**)
