@@ -17,11 +17,11 @@ import re
 class TactusLoader(OWWidget):
     name = "Tactus Mail Loader"
     description = "Reads Tactus mails from directory"
-    icon = "icons/turtle.svg"
+    icon = "icons/mail.svg"
     category = "Hackathon"
     directory = ""
     patientId = ""
-    DEFAULTDIR = "/home/erikt/projects/e-mental-health/usb/tmp/20190624"
+    DEFAULTDIRECTORY = "/home/erikt/projects/e-mental-health/usb/tmp/20190624"
     DEFAULTPATIENTID = "1"
     MESSAGES = "./Messages/Message"
     SENDER = "Sender"
@@ -35,6 +35,8 @@ class TactusLoader(OWWidget):
     MAILDATEID = 3
     MAILBODYID = 5
     MAXIDLEN = 4
+    INFILEPREFIX = "AdB"
+    INFILESUFFIX = "-an.xml"
 
     class Outputs:
         data = Output("Corpus", Corpus)
@@ -43,10 +45,9 @@ class TactusLoader(OWWidget):
         return(Domain([TimeVariable.make("date"),                                 \
                        DiscreteVariable.make("from",set([x[1] for x in mails])),  \
                        DiscreteVariable.make("to",  set([x[2] for x in mails]))], \
-                metas=[StringVariable.make("id"),                                 \
+                metas=[StringVariable.make("file"),                               \
                        StringVariable.make("subject"),                            \
-                       StringVariable.make("text"),                               \
-                       StringVariable.make("extra")]))
+                       StringVariable.make("text")]))
 
     def drawWindow(self):
         form = QFormLayout()
@@ -61,7 +62,7 @@ class TactusLoader(OWWidget):
                 controlWidth=100,
                 orientation=Qt.Horizontal,
                 tooltip="Tooltip",
-                placeholderText=self.DEFAULTDIR))
+                placeholderText=self.DEFAULTDIRECTORY))
         form.addRow(
             "patient id:",
             gui.lineEdit(
@@ -72,11 +73,10 @@ class TactusLoader(OWWidget):
                 placeholderText=self.DEFAULTPATIENTID))
         form.addRow(gui.button(None, self, 'load', self.load))
 
-    def makeFileName(self,directory,patientId):
+    def makeFileName(self,patientId):
         if patientId == "": patientId = self.DEFAULTPATIENTID
-        if directory == "": directory = self.DEFAULTDIR
         while (len(patientId) < self.MAXIDLEN): patientId = "0"+patientId
-        return(directory+"/AdB"+patientId+"-an.xml")
+        return(self.INFILEPREFIX+patientId+self.INFILESUFFIX)
 
     def sentenceSplit(self,text):
         tokens = text.split()
@@ -129,7 +129,7 @@ class TactusLoader(OWWidget):
         if name != self.CLIENT: return(self.COUNSELOR)
         else: return(name)
     
-    def getEmailData(self,root,thisId):
+    def getEmailData(self,root,patientFileName):
         clientMails = []
         counselorMails = []
         OWWidget.progressBarInit(self)
@@ -148,8 +148,8 @@ class TactusLoader(OWWidget):
                 elif child.tag == self.DATESENT: date = self.cleanupText(child.text)
                 elif child.tag == self.SUBJECT: subject = self.cleanupText(child.text)
                 elif child.tag == self.BODY: body = self.cleanupText(child.text)
-            if sender == self.CLIENT: clientMails.append([date,sender,recipient,thisId,subject,body])
-            else: counselorMails.append([date,sender,recipient,thisId,subject,body])
+            if sender == self.CLIENT: clientMails.append([date,sender,recipient,patientFileName,subject,body])
+            else: counselorMails.append([date,sender,recipient,patientFileName,subject,body])
         clientMails = self.cleanupMails(clientMails,counselorMails)
         counselorMails = self.cleanupMails(counselorMails,clientMails)
         allMails = clientMails
@@ -157,20 +157,15 @@ class TactusLoader(OWWidget):
         self.progress.advance()
         return(sorted(allMails,key=lambda subList:subList[self.MAILDATEID]))
 
-    def makeId(self,fileName):
-        thisId = re.sub(r".*/","",fileName)
-        thisId = re.sub(r"\.xml.*$","",thisId)
-        return(thisId)
-
-    def processFile(self,patientFileName):
-        tree = ET.parse(patientFileName)
+    def processFile(self,directory,patientFileName):
+        if directory == "": directory = self.DEFAULTDIRECTORY
+        tree = ET.parse(directory+"/"+patientFileName)
         root = tree.getroot()
-        thisId = self.makeId(patientFileName)
-        return(self.getEmailData(root,thisId))
+        return(self.getEmailData(root,patientFileName))
 
     def load(self):
-        patientFileName = self.makeFileName(self.directory,self.patientId)
-        mails = self.processFile(patientFileName)
+        patientFileName = self.makeFileName(self.patientId)
+        mails = self.processFile(self.directory,patientFileName)
 
         domain = self.corpusDomain(mails)
         table = Table.from_list(domain,mails)
