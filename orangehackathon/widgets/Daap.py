@@ -26,9 +26,7 @@ class Daap(OWWidget):
     icon= "icons/recycle.svg"
     FIELDNAMEDATE = "date"
     FIELDNAMETEXT = "text"
-    FIELDNAMEEXTRA = "extra"
     DAAPDICTFILE= '/home/erikt/projects/e-mental-health/enron/orange-hackathon/orangehackathon/widgets/Dicts/WRAD.Wt'
-    COMMAND = sys.argv[0]
     movingWeights = {}
     WINDOWSIZE = 100
     EMPTYSTRING = ""
@@ -37,10 +35,11 @@ class Daap(OWWidget):
         corpus = Input("Corpus", Corpus)
         
     class Outputs:
-        table = Output("Corpus", Table)
+        table = Output("Data", Table)
         
     def resetWidget(self):
         self.progress= gui.ProgressBar(self, 10)
+        self.label.setText("Daap analysis")
         
     def __init__(self):
         super().__init__()
@@ -64,8 +63,7 @@ class Daap(OWWidget):
             inFile.close()
             return(dictionary)
         except Exception as e: 
-            sys.exit(self.COMMAND+": error processing file "+inFileName+": "+str(e))
-        
+            sys.exit("Daap.py: error processing file "+inFileName+": "+str(e))
         
     def readText(self,):
         text=""
@@ -161,6 +159,6 @@ class Daap(OWWidget):
                 for value in averageWeights:
                      data.append([valueId,dateValue,value])
                      valueId += 1
-            domain = Domain([ContinuousVariable.make("id"),TimeVariable.make("date"),ContinuousVariable.make("extra")],metas=[])
+            domain = Domain([ContinuousVariable.make("word id"),TimeVariable.make("date"),ContinuousVariable.make("daap")],metas=[])
             table = Table.from_list(domain,data)
             self.Outputs.table.send(table)    
