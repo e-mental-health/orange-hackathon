@@ -33,10 +33,10 @@ class SortEmails(OWWidget):
     corpus = None
     
     class Inputs:
-        in_channel = Input("Corpus in", Corpus)
+        in_channel = Input("Corpus", Corpus)
     
     class Outputs:
-        out_channel = Output("Corpus out", Corpus)
+        out_channel = Output("Corpus", Corpus)
     
     def __init__(self):
         super().__init__()
