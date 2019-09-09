@@ -24,7 +24,7 @@ class MarkDuplicates(OWWidget):
     EMPTYSTRING = ""
     FIELDNAMEDATE = "date"
     FIELDNAMETEXT = "text"
-    FIELDNAMEEXTRA = "extra"
+    FIELDNAMECOORDINATES = "coordinates"
     DATEFORMAT = "%Y-%m-%d %H:%M:%S"
     want_main_area = False
 
@@ -135,14 +135,16 @@ class MarkDuplicates(OWWidget):
         else:
             self.label.setText("Processing corpus")
             text = self.EMPTYSTRING
+            coordinatesList = []
             for msgId in range(0,len(self.corpus)):
                 dateFieldValue = self.getFieldValue(corpus,self.FIELDNAMEDATE,msgId)
                 textFieldValue = self.getFieldValue(corpus,self.FIELDNAMETEXT,msgId)
                 date = datetime.datetime.fromtimestamp(dateFieldValue,tz=datetime.timezone.utc)
                 text = self.prepareText(textFieldValue)
                 duplicateRefStartEnds = self.countPhrases(date,text,msgId)
-                self.setFieldValue(corpus,self.FIELDNAMEEXTRA,msgId,list(duplicateRefStartEnds))
+                coordinatesList.append(str(duplicateRefStartEnds))
                 markedText = self.markDuplicates(text,duplicateRefStartEnds)
                 self.setFieldValue(corpus,self.FIELDNAMETEXT,msgId,markedText)
                 OWWidget.progressBarSet(self,100*(msgId+1)/len(self.corpus))
+#           self.corpus.extend_corpus(np.array(coordinatesList),np.array([self.FIELDNAMECOORDINATES]))
         self.Outputs.corpus.send(self.corpus)
