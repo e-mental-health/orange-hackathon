@@ -14,6 +14,8 @@ import re
 import sys
 import datetime
 import numpy as np
+from Orange.data import Table, Domain
+from Orange.data import StringVariable
 
 class MarkDuplicates(OWWidget):
     name = "Mark Duplicates"
@@ -27,6 +29,7 @@ class MarkDuplicates(OWWidget):
     FIELDNAMECOORDINATES = "coordinates"
     DATEFORMAT = "%Y-%m-%d %H:%M:%S"
     want_main_area = False
+    columnDomain = StringVariable.make(FIELDNAMECOORDINATES)
 
     class Inputs:
         corpus = Input("Corpus", Corpus)
@@ -125,6 +128,21 @@ class MarkDuplicates(OWWidget):
                 return
         sys.exit("setFieldValue: field name not found: "+fieldName)
 
+    def addMetaDomain(self,corpusDomain,columnDomain):
+        metas = list(corpusDomain.metas)
+        metas.append(columnDomain)
+        return(Domain(corpusDomain.attributes,metas=metas))
+
+    def addMetaData(self,corpus,columnData):
+        return([corpus[i].list+[columnData[i]] for i in range(0,len(corpus))])
+
+    def addMetaDataColumn(self,corpus,columnData,columnDomain):
+        newDomain = self.addMetaDomain(corpus.domain,columnDomain)
+        newArray = self.addMetaData(corpus,columnData)
+        newTable = Table.from_list(newDomain,newArray)
+        newCorpus = Corpus.from_table(newDomain,newTable)
+        return(newCorpus)
+
     @Inputs.corpus
     def inputAnalysis(self, corpus):
         self.resetWidget()
@@ -146,5 +164,6 @@ class MarkDuplicates(OWWidget):
                 markedText = self.markDuplicates(text,duplicateRefStartEnds)
                 self.setFieldValue(corpus,self.FIELDNAMETEXT,msgId,markedText)
                 OWWidget.progressBarSet(self,100*(msgId+1)/len(self.corpus))
+            self.corpus = self.addMetaDataColumn(corpus,coordinatesList,self.columnDomain)
 #           self.corpus.extend_corpus(np.array(coordinatesList),np.array([self.FIELDNAMECOORDINATES]))
         self.Outputs.corpus.send(self.corpus)
