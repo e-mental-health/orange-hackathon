@@ -19,17 +19,25 @@ import datetime
 import numpy as np
 from Orange.data import Table, Domain
 from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, StringVariable
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QFormLayout
+import datetime
 
 class Daap(OWWidget):
-    name="Daap analysis"
+    name="Daap Analysis"
     description= 'Do a Daap analysis on the selected corpus'
     icon= "icons/recycle.svg"
     FIELDNAMEDATE = "date"
     FIELDNAMETEXT = "text"
+    FIELDNAMEFROM = "from"
+    FIELDNAMEFILE = "file"
     DAAPDICTFILE= '/home/erikt/projects/e-mental-health/enron/orange-hackathon/orangehackathon/widgets/Dicts/WRAD.Wt'
     movingWeights = {}
     WINDOWSIZE = 100
     EMPTYSTRING = ""
+    DATEFORMAT = "%Y-%m-%d %H:%M:%S"
+    saveFileName = ""
+    table = ""
     
     class Inputs:
         corpus = Input("Corpus", Corpus)
@@ -39,11 +47,34 @@ class Daap(OWWidget):
         
     def resetWidget(self):
         self.progress= gui.ProgressBar(self, 10)
-        self.label.setText("Daap analysis")
-        
+        self.label.setText("Daap Analysis")
+
+    def saveFile(self):
+        saveFile = open(self.saveFileName,"w")
+        for i in range(0,len(self.table)):
+              for j in range(0,len(self.table[i])):
+                  print(self.table[i][j],end="",file=saveFile)
+                  if j+1 < len(self.table[0]): print(",",end="",file=saveFile)
+              print("",file=saveFile)
+        saveFile.close()
+        self.label.setText("Saved data to file "+self.saveFileName)
+
     def __init__(self):
         super().__init__()
         self.label = gui.widgetLabel(self.controlArea)
+        form = QFormLayout()
+        form.setFieldGrowthPolicy(form.AllNonFixedFieldsGrow)
+        form.setVerticalSpacing(10)
+        form.setLabelAlignment(Qt.AlignLeft)
+        gui.widgetBox(self.controlArea, True, orientation=form)
+        form.addRow(
+            "File name:",
+            gui.lineEdit(
+                None, self, "saveFileName",
+                controlWidth=100,
+                orientation=Qt.Horizontal,
+                tooltip="Tooltip"))
+        form.addRow(gui.button(None, self, 'Save', self.saveFile))
         self.resetWidget()
         
     def prepareText(self,text):
@@ -143,22 +174,36 @@ class Daap(OWWidget):
         self.resetWidget()
         OWWidget.progressBarInit(self)
         if corpus is None:
+            pass
             self.label.setText("No corpus available")
         else:
             self.label.setText("Processing corpus...")
             text = self.EMPTYSTRING
             data = []
+            metas = []
             valueId = 0
             self.progress.iter = len(corpus)
+            fileValues = []
+            fromValues = []
+            dateValues = []
             for msgId in range(0,len(corpus)):
                 self.progress.advance()
                 dateValue = self.getFieldValue(corpus,self.FIELDNAMEDATE,msgId)
+                dateString = datetime.datetime.fromtimestamp(dateValue,tz=datetime.timezone.utc).strftime(self.DATEFORMAT)
                 textValue = self.getFieldValue(corpus,self.FIELDNAMETEXT,msgId)
+                fromValue = self.getFieldValue(corpus,self.FIELDNAMEFROM,msgId)
+                fileValue = self.getFieldValue(corpus,self.FIELDNAMEFILE,msgId)
+                fromValues.append(fromValue)
+                fileValues.append(fileValue)
+                dateValues.append(dateString)
                 text = self.prepareText(textValue)
                 averageWeights = self.daap(text)
-                for value in averageWeights:
-                     data.append([valueId,dateValue,value])
+                for daapValue in averageWeights:
+                     data.append([valueId,daapValue,fromValue,fileValue])
+                     metas.append([str(dateString)])
                      valueId += 1
-            domain = Domain([ContinuousVariable.make("word id"),TimeVariable.make("date"),ContinuousVariable.make("daap")],metas=[])
-            table = Table.from_list(domain,data)
-            self.Outputs.table.send(table)    
+            domain = Domain([ContinuousVariable.make("word id"),ContinuousVariable.make("daap"),DiscreteVariable.make("from",set(fromValues)),DiscreteVariable.make("file",set(fileValues)),DiscreteVariable.make("date",set(dateValues))],metas=[])
+            # 20190910 from_numpy needed for metas but crashes
+            self.table = Table.from_list(domain,data)
+            self.Outputs.table.send(self.table)
+            self.label.setText("Finished processing corpus")
