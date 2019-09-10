@@ -30,7 +30,7 @@ class LinePlot(OWWidget):
             "y:",
             gui.radioButtons(
                 None, self, "yColumn",columnNames))
-        form.addRow(gui.button(None, self, 'load', self.redraw))
+        form.addRow(gui.button(None, self, 'draw', self.redraw))
 
     def __init__(self):
         super().__init__()
