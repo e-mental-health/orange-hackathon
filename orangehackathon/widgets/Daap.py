@@ -199,11 +199,9 @@ class Daap(OWWidget):
                 text = self.prepareText(textValue)
                 averageWeights = self.daap(text)
                 for daapValue in averageWeights:
-                     data.append([valueId,daapValue,fromValue,fileValue])
-                     metas.append([str(dateString)])
+                     data.append([msgId+1,valueId+1,daapValue,fromValue,fileValue,dateString])
                      valueId += 1
-            domain = Domain([ContinuousVariable.make("word id"),ContinuousVariable.make("daap"),DiscreteVariable.make("from",set(fromValues)),DiscreteVariable.make("file",set(fileValues)),DiscreteVariable.make("date",set(dateValues))],metas=[])
-            # 20190910 from_numpy needed for metas but crashes
+            domain = Domain([ContinuousVariable.make("msg id"),ContinuousVariable.make("word id"),ContinuousVariable.make("daap"),DiscreteVariable.make("from",set(fromValues)),DiscreteVariable.make("file",set(fileValues)),DiscreteVariable.make("date",set(dateValues))])
             self.table = Table.from_list(domain,data)
             self.Outputs.table.send(self.table)
             self.label.setText("Finished processing corpus")
