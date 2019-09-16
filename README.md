@@ -1,6 +1,6 @@
 # Orange hackathon
 
-The Orange Hackathon was a software development event in which researchers and students expanded the platform system [Orange](orange.biolab.si) with modules which can automatically analyze online therapeutic therapies
+The Orange Hackathon was a software development event in which researchers and students expanded the platform system [Orange](http://orange.biolab.si) with modules which can automatically analyze online therapeutic therapies
 
 The hackathon was a part of the project [What Works When for Whom](https://www.esciencecenter.nl/project/what-works-when-for-whom) in which three partners collaborate: [Tactus](tactus.nl), [Psychology, Health and Technology](www.utwente.nl/en/bms/pht/) of the University of Twente and the [Netherlands eScience Center](esciencecenter.nl).
 
@@ -9,7 +9,7 @@ The contact person for this hackathon is Erik Tjong Kim Sang e.tjongkimsang@esci
 
 ## Installation
 
-In order to use the software developed in the hackathon, you need to have [Orange](orange.biolab.si) running at your computer. Next you need to install the hacakthon software:
+In order to use the software developed in the hackathon, you need to have [Orange](http://orange.biolab.si) running at your computer. Next you need to install the hacakthon software:
 
 1. Open a command window at your computer (for example xterm or Command Prompt)
 2. Dowload the hackathon software by typing: `git clone https://github.com/e-mental-health/orange-hackathon.git`
