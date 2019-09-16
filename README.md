@@ -7,6 +7,17 @@ The hackathon was a part of the project [What Works When for Whom](https://www.e
 The contact person for this hackathon is Erik Tjong Kim Sang e.tjongkimsang@esciencecenter.nl
 
 
+## Installation
+
+In order to use the software developed in the hackathon, you need to have [Orange](orange.biolab.si) running at your computer. Next you need to install the hacakthon software:
+
+1 Open een command window at your computer (for example xterm or Command Prompt)
+2 Dowload the hackathon software by typing: `git clone https://github.com/e-mental-health/orange-hackathon.git`
+3 Go to the software directory by typing: `cd orange-hackathon`
+4 install the hackathon software: `pip install .`
+5 start the Orange software: `python -m Orange.canvas`
+
+
 ## Widgets
 **Mail2Tsv**: 
 Convert email files to .tsv files, for easy importing as a corpus.
