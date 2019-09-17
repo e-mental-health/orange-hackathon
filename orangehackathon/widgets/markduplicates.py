@@ -85,8 +85,13 @@ class MarkDuplicates(OWWidget):
                     duplicateRefStartEnds.append([duplicateSource,duplicateStart,duplicateEnd])
         return(duplicateRefStartEnds)
 
+    def escapeXml(self,text):
+        text = re.sub("<","&lt;",text)
+        text = re.sub(">","&gt;",text)
+        return(text)
+
     def markDuplicates(self,message,duplicateRefStartEnds):
-        words = message.split()
+        words = self.escapeXml(message).split()
         outText = self.EMPTYSTRING
         wordIndex = 0
         while len(duplicateRefStartEnds) > 0:
