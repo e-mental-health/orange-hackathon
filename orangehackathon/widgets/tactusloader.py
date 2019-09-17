@@ -21,7 +21,7 @@ class TactusLoader(OWWidget):
     category = "Hackathon"
     directory = ""
     patientId = ""
-    DEFAULTDIRECTORY = "/home/erikt/projects/e-mental-health/usb/tmp/20190624"
+    DEFAULTDIRECTORY = "/home/erikt/projects/e-mental-health/usb/tmp/20190917"
     DEFAULTPATIENTID = "1"
     MESSAGES = "./Messages/Message"
     SENDER = "Sender"
