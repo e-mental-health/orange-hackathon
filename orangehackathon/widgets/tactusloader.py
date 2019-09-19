@@ -71,12 +71,14 @@ class TactusLoader(OWWidget):
                 orientation=Qt.Horizontal,
                 tooltip="Tooltip",
                 placeholderText=self.DEFAULTPATIENTID))
+        form.addRow(gui.button(None, self, 'prev', self.prev),gui.button(None, self, 'next', self.next))
         form.addRow(gui.button(None, self, 'load', self.load))
 
-    def makeFileName(self,patientId):
-        if patientId == "": patientId = self.DEFAULTPATIENTID
-        while (len(patientId) < self.MAXIDLEN): patientId = "0"+patientId
-        return(self.INFILEPREFIX+patientId+self.INFILESUFFIX)
+    def makeFileName(self):
+        if self.patientId == "": self.patientId = self.DEFAULTPATIENTID
+        fileName = self.patientId
+        while (len(fileName) < self.MAXIDLEN): fileName = "0"+fileName
+        return(self.INFILEPREFIX+fileName+self.INFILESUFFIX)
 
     def sentenceSplit(self,text):
         tokens = text.split()
@@ -163,8 +165,16 @@ class TactusLoader(OWWidget):
         root = tree.getroot()
         return(self.getEmailData(root,patientFileName))
 
+    def prev(self):
+        self.patientId = str(int(self.patientId)-1)
+        self.load()
+
+    def next(self):
+        self.patientId = str(int(self.patientId)+1)
+        self.load()
+
     def load(self):
-        patientFileName = self.makeFileName(self.patientId)
+        patientFileName = self.makeFileName()
         mails = self.processFile(self.directory,patientFileName)
 
         domain = self.corpusDomain(mails)
