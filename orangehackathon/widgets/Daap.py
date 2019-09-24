@@ -22,6 +22,7 @@ from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, Stri
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFormLayout
 import datetime
+import os
 
 class Daap(OWWidget):
     name="Daap Analysis"
@@ -31,7 +32,7 @@ class Daap(OWWidget):
     FIELDNAMETEXT = "text"
     FIELDNAMEFROM = "from"
     FIELDNAMEFILE = "file"
-    DAAPDICTFILE= '/home/erikt/projects/e-mental-health/enron/orange-hackathon/orangehackathon/widgets/Dicts/WRAD.Wt'
+    DAAPDICTFILE= os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Dicts' , 'WRAD.Wt')
     movingWeights = {}
     WINDOWSIZE = 100
     EMPTYSTRING = ""
