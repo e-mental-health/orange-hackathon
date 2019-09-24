@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas as pd
 from Orange.widgets.widget import OWWidget, Output
 from Orange.widgets import gui
+from Orange.widgets.settings import Setting
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFormLayout
 from Orange.data.pandas_compat import table_from_frame
@@ -18,8 +19,8 @@ class EnronLoader(OWWidget):
     description = "Reads Enron mails from directory"
     icon = "icons/e.svg"
     category = "Hackathon"
-    directory = ''
-    _glob='**/*.' # all files with names ending in . (*.) in all subdirectories (**)
+    directory = Setting('')
+    _glob = Setting('**/*.') # all files with names ending in . (*.) in all subdirectories (**)
 
     class Outputs:
         data = Output("Corpus", Corpus)
