@@ -14,6 +14,7 @@ import re
 import sys
 import datetime
 import numpy as np
+import nltk
 from Orange.data import Table, Domain
 from Orange.data import StringVariable
 
@@ -153,6 +154,10 @@ class MarkDuplicates(OWWidget):
         self.resetWidget()
         self.corpus = corpus
         OWWidget.progressBarInit(self)
+        try:
+            nltk.data.find('tokenizers/punkt')
+        except LookupError:
+            nltk.download('punkt')
         if self.corpus is None:
             self.label.setText("No corpus available")
         else:
