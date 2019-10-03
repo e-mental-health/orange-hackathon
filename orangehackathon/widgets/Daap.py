@@ -32,7 +32,7 @@ class Daap(OWWidget):
     FIELDNAMETEXT = "text"
     FIELDNAMEFROM = "from"
     FIELDNAMEFILE = "file"
-    DAAPDICTFILE= os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Dicts' , 'WRAD.Wt')
+    DAAPDICTFILE= os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Dicts' , 'WRAD-nl.Wt')
     movingWeights = {}
     WINDOWSIZE = 100
     EMPTYSTRING = ""
@@ -90,6 +90,7 @@ class Daap(OWWidget):
             inFile = open(inFileName,"r")
             for line in inFile:
                 line = line.strip()
+                print(line)
                 token,weight = line.split()
                 dictionary[token] = float(weight)
             inFile.close()
