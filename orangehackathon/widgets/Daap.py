@@ -90,7 +90,6 @@ class Daap(OWWidget):
             inFile = open(inFileName,"r")
             for line in inFile:
                 line = line.strip()
-                print(line)
                 token,weight = line.split()
                 dictionary[token] = float(weight)
             inFile.close()
