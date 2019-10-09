@@ -1,12 +1,12 @@
 import re
 import sys
 import pandas as pd
-from Orange.data import pandas_compat, Table
+from Orange.data import pandas_compat, Domain, Table
 from Orange.widgets import gui
 from Orange.widgets.widget import OWWidget, Input, Output
+from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, StringVariable
 from nltk import word_tokenize
 from orangecontrib.text.corpus import Corpus
-
 
 # Create the widget
 class LIWC(OWWidget):
@@ -18,8 +18,8 @@ class LIWC(OWWidget):
     EMPTYSTRING = ""
     FIELDNAMETEXT = "text"
     FIELDNAMEEXTRA = "extra"
-    LIWCDIR = 'C:\\Users\\Auke\\Documents\\Atlas\\Semester 6\\Thesis\\WWWFW\\Hackathon\\'
-    LIWCFILE = "\\LIWC-DO-NOT-DISTRIBUTE.txt"
+    LIWCDIR = "/home/erikt/projects/e-mental-health/enron/orange-hackathon/orangehackathon/widgets/Dicts"
+    LIWCFILE = "Dutch_LIWC2015_Dictionary.dic"
     COMMAND = sys.argv.pop(0)
     TEXTBOUNDARY = "%"
     NBROFTOKENS = "NBROFTOKENS"
@@ -34,11 +34,11 @@ class LIWC(OWWidget):
         corpus = Input("Corpus", Corpus)
 
     class Outputs:
-        LIWC_table = Output("Table", Table)
-        corpus = Output("Corpus", Corpus)
+        table = Output("Table", Corpus)
 
     def resetWidget(self):
         self.corpus = None
+        self.progress= gui.ProgressBar(self, 10)
 
     def __init__(self):
         super().__init__()
@@ -164,29 +164,52 @@ class LIWC(OWWidget):
         counts = self.text2liwc(words, prefixes, tokens)
         return counts
 
-    # Iterate over documents in corpus
+    def getColumnNames(self,thisList):
+        columnNames = []
+        for row in thisList:
+            for columnName in row:
+                if not columnName in columnNames: columnNames.append(columnName)
+        return(columnNames)
 
-    # Iterate over text per document, apply liwc to each word
+    def list2table(self,thisList):
+        columnNames = self.getColumnNames(thisList)
+        table = []
+        for row in thisList:
+            table.append(row)
+            for columnName in columnNames:
+                if not columnName in row: table[-1][columnName] = '0'
+        return(table,columnNames)
+
+    def dataCombine(self,corpus,liwcResultList):
+        liwcResultTable,columnNames = self.list2table(liwcResultList)
+        domain = list(corpus.domain)
+        for columnName in sorted(columnNames):
+            domain.append(ContinuousVariable(name=columnName))
+        dataOut = []
+        for i in range(0,len(corpus)):
+            row = list(corpus[i].values())
+            for columnName in sorted(columnNames):
+                row.append(int(liwcResultTable[i][columnName]))
+            dataOut.append(row)
+        table = Table.from_list(Domain(domain),dataOut) # HERE
+        return(table) 
 
     @Inputs.corpus
     def inputAnalysis(self, corpus):
         self.resetWidget()
+        OWWidget.progressBarInit(self)
         self.corpus = corpus
         if self.corpus is None:
             self.label.setText("No corpus available")
         else:
             self.fieldIdText = self.getFieldId(self.corpus, self.FIELDNAMETEXT)
             self.fieldIdExtra = self.getFieldId(self.corpus, self.FIELDNAMEEXTRA)
-            features, words, prefixes = self.readLiwc(self.LIWCDIR + self.LIWCFILE)
+            features, words, prefixes = self.readLiwc(self.LIWCDIR+"/"+self.LIWCFILE)
+            self.progress.iter = len(self.corpus)
+            liwcResultList = []
             for msgId in range(0, len(self.corpus.metas)):
                 text = str(self.corpus.metas[msgId][self.fieldIdText])
-                result = self.liwcResults(text, words, prefixes)
-                self.corpus.metas[msgId][self.fieldIdExtra] = result
-
-        self.Outputs.corpus.send(self.corpus)
-
-
-
-
-
-
+                liwcResultList.append(self.liwcResults(text, words, prefixes))
+                self.progress.advance()
+            self.table = self.dataCombine(self.corpus,liwcResultList)
+        self.Outputs.table.send(self.table)
