@@ -9,14 +9,29 @@ The contact person for this hackathon is Erik Tjong Kim Sang e.tjongkimsang@esci
 
 ## Installation
 
-In order to use the software developed in the hackathon, you need to have [Orange](http://orange.biolab.si) running at your computer. Next you need to install the hacakthon software:
+In order to use the software developed in the hackathon, you need to have [Orange](http://orange.biolab.si) running at your computer. Next you need to install the hackathon software:
 
-1. Open a command window at your computer (for example xterm or Command Prompt)
-2. Dowload the hackathon software by typing: `git clone https://github.com/e-mental-health/orange-hackathon.git`
-3. Go to the software directory by typing: `cd orange-hackathon`
-4. install the hackathon software: `pip install .`
-5. start the Orange software: `python -m Orange.canvas`
+### Orange installation
 
+We install Orange via Anaconda:
+
+1. Download Anaconda from http://www.anaconda.com/distribution (choose the operation system of your computer: Windows, macOS or Linux)
+2. When the download is complete: start the Anaconda prompt: under Windows: Anaconda prompt under Anaconda3
+3. In the Anaconda3 window, type:
+  * conda config --add channels conda-forge (followed by Enter)
+  * conda install orange3
+  * conda install orange3-text
+  * on Windows: mkdir %userprofile%\orange
+  * cd %userprofile%\\orange (or cd $HOME/orange on macOS or Linux)
+  * git clone https://github.com/e-mental-health/orange-hackathon
+
+**Starting Orange**
+
+1. start the Anaconda prompt: under Windows: Anaconda prompt under Anaconda3
+2. In the Anaconda3 window, type:
+  * cd %userprofile%\\orange\\orange-hackathon (or cd ~/orange/orange-hackathon)
+  * pip install .
+  * python -m Orange.canvas
 
 ## Widgets
 **Mail2Tsv**: 
