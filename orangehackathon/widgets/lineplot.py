@@ -1,3 +1,5 @@
+import re
+import sys
 import matplotlib.pyplot as plt
 # alternatives: seaborn, plotnine, 
 from PyQt5.QtCore import Qt
@@ -18,12 +20,12 @@ class LinePlot(OWWidget):
     FIELDNAMEDATE = "date"
     FIELDNAMENONE = "NONE"
     FIELDNAMEMSGID = "msg id"
-    DEFAULTCOLOR = "C0"
     storedTable = None
     coloredColumn = -1
     plotId = 0
     xColumn = 0
     yColumn = 0
+    connect = "words"
 
     class Inputs:
         table = Input("Data", Table)
@@ -43,13 +45,15 @@ class LinePlot(OWWidget):
         form.setLabelAlignment(Qt.AlignLeft)
         gui.widgetBox(self.controlArea, True, orientation=form)
         if self.storedTable == None: columnNames = []
-        else: columnNames = sorted([x.name for x in self.storedTable.domain.variables])
+        else: columnNames = [x.name for x in self.storedTable.domain.variables]
         form.addRow("x-axis:",
-            gui.radioButtons(None, self, "xColumn",columnNames))
+                gui.comboBox(None, self, "xColumn",items=columnNames))
         form.addRow("y-axis:",
-            gui.radioButtons(None, self, "yColumn",columnNames))
+                gui.comboBox(None, self, "yColumn",items=columnNames))
         form.addRow("color:",
-            gui.radioButtons(None, self, "coloredColumn",columnNames+[self.FIELDNAMENONE]))
+                gui.comboBox(None, self, "coloredColumn",items=columnNames+[self.FIELDNAMENONE]))
+        form.addRow("connect:",
+                gui.comboBox(None, self, "connect",items=["words","messages"]))
         form.addRow(gui.button(None, self, 'draw', self.redraw))
 
     def getFieldValue(self,table,fieldName,rowId):
@@ -65,8 +69,11 @@ class LinePlot(OWWidget):
             self.drawWindow()
             self.drawGraph()
 
+    def getColumnValues(self,table,columnName):
+        return(list(set([self.getFieldValue(table,columnName,i) for i in range(0,len(table))])))
+
     def makeColorNames(self,columnName):
-        columnValueList = list(set([self.getFieldValue(self.storedTable,columnName,i) for i in range(0,len(self.storedTable))]))
+        columnValueList = self.getColumnValues(self.storedTable,columnName)
         colorNames = {}
         for i in range(0,len(columnValueList)):
             colorNames[columnValueList[i]] = self.COLORPREFIX+str(i % 10)
@@ -86,9 +93,17 @@ class LinePlot(OWWidget):
                 if len(labelsUnique) >= nbrOfUniqueLabels: break
         return(handlesUnique,labelsUnique)
 
-    def drawGraph(self):
+    def mixSorted(self,thisList):
+        strList = []
+        numList = []
+        for i in range(0,len(thisList)):
+            if re.match("^\d+$",thisList[i]): numList.append(int(thisList[i]))
+            else: strList.append(thisList[i])
+        return(sorted(strList)+[str(x) for x in sorted(numList)])
+
+    def plotWords(self):
         OWWidget.progressBarInit(self)
-        columnNames = sorted([x.name for x in self.storedTable.domain.variables])
+        columnNames = [x.name for x in self.storedTable.domain.variables]
         self.plotId += 1
         plt.figure(self.plotId)
         ax = plt.subplot(111)
@@ -102,25 +117,72 @@ class LinePlot(OWWidget):
             colorNames = self.makeColorNames(columnNames[self.coloredColumn])
         for i in range(0,len(self.storedTable)):
             currentMsgId = self.getFieldValue(self.storedTable,self.FIELDNAMEMSGID,i)
+            newX = self.getFieldValue(self.storedTable,columnNames[self.xColumn],i)
+            newY = self.getFieldValue(self.storedTable,columnNames[self.yColumn],i)
+            if i > 0 and currentMsgId != lastMsgId and self.connect != "words":
+                ax.plot([dataX[-1],newX],[dataY[-1],newY],color=self.DEFAULTCOLOR,label=lastDataValue)
             if currentMsgId != lastMsgId and len(dataX) > 0:
                 if self.coloredColumn >= 0 and self.coloredColumn < len(columnNames):
                     color = colorNames[lastDataValue]
                 ax.plot(dataX,dataY,color=color,label=lastDataValue)
                 dataX = []
                 dataY = []
-            dataX.append(self.getFieldValue(self.storedTable,columnNames[self.xColumn],i))
-            dataY.append(self.getFieldValue(self.storedTable,columnNames[self.yColumn],i))
+            dataX.append(newX)
+            dataY.append(newY)
             lastMsgId = currentMsgId
             lastDataValue = self.getFieldValue(self.storedTable,columnNames[self.coloredColumn],i)
             self.progress.advance()
         if len(dataX) > 0:
+            ax.plot(dataX,dataY,color=color,label=lastDataValue)
             if self.coloredColumn >= 0 and self.coloredColumn < len(columnNames): 
                 color = colorNames[lastDataValue]
             plt.plot(dataX,dataY,color=color,label=lastDataValue)
-        title = "x-axis: \""+columnNames[self.xColumn]+"\""+"; y-axis: \""+columnNames[self.yColumn]
+        title = "x-axis: \""+columnNames[self.xColumn]+"\""+"; y-axis: \""+columnNames[self.yColumn]+"\""
         if self.coloredColumn >= 0 and self.coloredColumn < len(columnNames):
-            title += "\"; color: \""+columnNames[self.coloredColumn]+"\""
+            title += "; color: \""+columnNames[self.coloredColumn]+"\""
             handlesUnique,labelsUnique = self.simplifyLegend(ax)
             ax.legend(handlesUnique,labelsUnique)
         plt.title(title)
         plt.show()
+
+    def plotMessages(self):
+        OWWidget.progressBarInit(self)
+        columnNames = [x.name for x in self.storedTable.domain.variables]
+        self.plotId += 1
+        plt.figure(self.plotId)
+        ax = plt.subplot(111)
+        self.progress.iter = len(self.storedTable)
+        if self.coloredColumn < 0 or self.coloredColumn >= len(columnNames):
+            dataX = []
+            dataY = []
+            for i in range(0,len(self.storedTable)):
+                newX = self.getFieldValue(self.storedTable,columnNames[self.xColumn],i)
+                newY = self.getFieldValue(self.storedTable,columnNames[self.yColumn],i)
+                dataX.append(newX)
+                dataY.append(newY)
+            ax.plot(dataX,dataY,color=self.DEFAULTCOLOR)
+        else:
+            colorNames = self.makeColorNames(columnNames[self.coloredColumn])
+            columnValues = self.getColumnValues(self.storedTable,columnNames[self.coloredColumn])
+            for columnValue in columnValues:
+                dataX = []
+                dataY = []
+                for i in range(0,len(self.storedTable)):
+                    dataValue = self.getFieldValue(self.storedTable,columnNames[self.coloredColumn],i)
+                    if dataValue == columnValue: 
+                        newX = self.getFieldValue(self.storedTable,columnNames[self.xColumn],i)
+                        newY = self.getFieldValue(self.storedTable,columnNames[self.yColumn],i)
+                        dataX.append(newX)
+                        dataY.append(newY)
+                    if len(dataX) > 0: ax.plot(dataX,dataY,color=colorNames[columnValue],label=columnValue)
+        title = "x-axis: \""+columnNames[self.xColumn]+"\""+"; y-axis: \""+columnNames[self.yColumn]+"\""
+        if self.coloredColumn >= 0 and self.coloredColumn < len(columnNames):
+            title += "; color: \""+columnNames[self.coloredColumn]+"\""
+            handlesUnique,labelsUnique = self.simplifyLegend(ax)
+            ax.legend(handlesUnique,labelsUnique)
+        plt.title(title)
+        plt.show()
+
+    def drawGraph(self):
+        if self.connect == "words": self.plotWords()
+        else: self.plotMessages()
