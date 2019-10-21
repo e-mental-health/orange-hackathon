@@ -144,11 +144,9 @@ class LIWC(OWWidget):
         for word in tokens:
             if word in words:
                 self.addFeatureToCounts(counts, self.NBROFMATCHES)
-
                 for feature in words[word]:
                     if feature.isdigit():
                         self.addFeatureToCounts(counts, feature)
-
             longestPrefix = self.findLongestPrefix(prefixes, word)
             if longestPrefix != "":
                 self.addFeatureToCounts(counts, self.NBROFMATCHES)
@@ -180,18 +178,29 @@ class LIWC(OWWidget):
                 if not columnName in row: table[-1][columnName] = '0'
         return(table,columnNames)
 
+    def mixSorted(self,thisList):
+        strList = []
+        numList = []
+        for i in range(0,len(thisList)):
+            if re.match("^\d+$",thisList[i]): numList.append(int(thisList[i]))
+            else: strList.append(thisList[i])
+        return(sorted(strList)+[str(x) for x in sorted(numList)])
+
     def dataCombine(self,corpus,liwcResultList):
         liwcResultTable,columnNames = self.list2table(liwcResultList)
-        domain = list(corpus.domain)
-        for columnName in sorted(columnNames):
+        domain = [ContinuousVariable(name="msg id")]+list(corpus.domain)
+        for columnName in self.mixSorted(columnNames):
             domain.append(ContinuousVariable(name=columnName))
         dataOut = []
         for i in range(0,len(corpus)):
-            row = list(corpus[i].values())
-            for columnName in sorted(columnNames):
-                row.append(int(liwcResultTable[i][columnName]))
+            row = [i+1]+list(corpus[i].values())
+            for columnName in self.mixSorted(columnNames):
+                if not re.match("^\d+$",columnName) or int(liwcResultTable[i][self.NBROFMATCHES]) == 0:
+                    row.append(int(liwcResultTable[i][columnName]))
+                else:
+                    row.append(100.0*float(liwcResultTable[i][columnName])/float(liwcResultTable[i][self.NBROFMATCHES]))
             dataOut.append(row)
-        table = Table.from_list(Domain(domain),dataOut) # HERE
+        table = Table.from_list(Domain(domain),dataOut)
         return(table) 
 
     @Inputs.corpus
