@@ -1,3 +1,4 @@
+import os
 import re
 import sys
 import pandas as pd
@@ -18,8 +19,7 @@ class LIWC(OWWidget):
     EMPTYSTRING = ""
     FIELDNAMETEXT = "text"
     FIELDNAMEEXTRA = "extra"
-    LIWCDIR = "/home/erikt/projects/e-mental-health/enron/orange-hackathon/orangehackathon/widgets/Dicts"
-    LIWCFILE = "Dutch_LIWC2015_Dictionary.dic"
+    LIWCFILE = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Dicts' , 'LIWC-DO-NOT-DISTRIBUTE.txt')
     COMMAND = sys.argv.pop(0)
     TEXTBOUNDARY = "%"
     NBROFTOKENS = "NBROFTOKENS"
@@ -213,7 +213,7 @@ class LIWC(OWWidget):
         else:
             self.fieldIdText = self.getFieldId(self.corpus, self.FIELDNAMETEXT)
             self.fieldIdExtra = self.getFieldId(self.corpus, self.FIELDNAMEEXTRA)
-            features, words, prefixes = self.readLiwc(self.LIWCDIR+"/"+self.LIWCFILE)
+            features, words, prefixes = self.readLiwc(self.LIWCFILE)
             self.progress.iter = len(self.corpus)
             liwcResultList = []
             for msgId in range(0, len(self.corpus.metas)):
