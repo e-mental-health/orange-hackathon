@@ -15,12 +15,14 @@ from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, Stri
 from orangehackathon.utils.mail2tsv import parse_enron_mail_old as parse_enron_mail
 
 class EnronLoader(OWWidget):
+    DEFAULTDIRECTORY = "/home/erikt/projects/e-mental-health/enron/data"
+
     name = "Enron mail loader"
     description = "Reads Enron mails from directory"
     icon = "icons/e.svg"
     category = "Hackathon"
-    directory = Setting('')
-    _glob = Setting('**/*.') # all files with names ending in . (*.) in all subdirectories (**)
+    directory = Setting(DEFAULTDIRECTORY)
+    _glob = Setting('symes-k/**/*.') # all files with names ending in . (*.) in all subdirectories (**)
 
     class Outputs:
         data = Output("Corpus", Corpus)
@@ -44,10 +46,10 @@ class EnronLoader(OWWidget):
             "ENRON mail directory:",
             gui.lineEdit(
                 None, self, "directory",
-                controlWidth=200,
+                controlWidth=100,
                 orientation=Qt.Horizontal,
                 tooltip="Tooltip",
-                placeholderText="Directory"))
+                placeholderText=""))
         form.addRow(
             "glob pattern:",
             gui.lineEdit(
