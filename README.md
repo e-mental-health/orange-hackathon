@@ -1,5 +1,7 @@
 # Orange hackathon
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/bba74d89a390004d9ed0/maintainability)](https://codeclimate.com/github/e-mental-health/orange-hackathon/maintainability)
+
 The Orange Hackathon was a software development event in which researchers and students expanded the platform system [Orange](http://orange.biolab.si) with modules which can automatically analyze online therapeutic therapies
 
 The hackathon was a part of the project [What Works When for Whom](https://www.esciencecenter.nl/project/what-works-when-for-whom) in which three partners collaborate: [Tactus](tactus.nl), [Psychology, Health and Technology](www.utwente.nl/en/bms/pht/) of the University of Twente and the [Netherlands eScience Center](esciencecenter.nl).
