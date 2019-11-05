@@ -1,5 +1,6 @@
 # Orange hackathon
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/71fd89c125d4482ab7b5d69f9c547073)](https://www.codacy.com/manual/eriktks/orange-hackathon?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=e-mental-health/orange-hackathon&amp;utm_campaign=Badge_Grade)
 [![Maintainability](https://api.codeclimate.com/v1/badges/bba74d89a390004d9ed0/maintainability)](https://codeclimate.com/github/e-mental-health/orange-hackathon/maintainability)
 
 The Orange Hackathon was a software development event in which researchers and students expanded the platform system [Orange](http://orange.biolab.si) with modules which can automatically analyze online therapeutic therapies
