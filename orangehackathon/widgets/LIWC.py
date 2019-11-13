@@ -2,6 +2,7 @@ import os
 import re
 import sys
 import pandas as pd
+import numpy as np
 from Orange.data import pandas_compat, Domain, Table
 from Orange.widgets import gui
 from Orange.widgets.widget import OWWidget, Input, Output
@@ -17,8 +18,10 @@ class LIWC(OWWidget):
     N = 20
     EMPTYLIST = []
     EMPTYSTRING = ""
+    FIELDNAMEFILE = "file"
     FIELDNAMETEXT = "text"
     FIELDNAMEEXTRA = "extra"
+    FIELDNAMEMSGID = "msg id"
     LIWCFILE = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'Dicts' , 'LIWC-DO-NOT-DISTRIBUTE.txt')
     COMMAND = sys.argv.pop(0)
     TEXTBOUNDARY = "%"
@@ -155,12 +158,12 @@ class LIWC(OWWidget):
             if self.isNumber(word):
                 self.addFeatureToCounts(counts, self.NBROFMATCHES)
                 self.addFeatureToCounts(counts, "Number count")
-        return counts
+        return(counts)
 
     def liwcResults(self, text, words, prefixes):
         tokens = self.prepareText(text)
         counts = self.text2liwc(words, prefixes, tokens)
-        return counts
+        return(counts)
 
     def getColumnNames(self,thisList):
         columnNames = []
@@ -188,11 +191,15 @@ class LIWC(OWWidget):
 
     def dataCombine(self,corpus,liwcResultList):
         liwcResultTable,columnNames = self.list2table(liwcResultList)
-        domain = [ContinuousVariable(name="msg id")]+list(corpus.domain)
+        self.fieldIdFile = self.getFieldId(self.corpus, self.FIELDNAMEFILE)
+        domain = [ContinuousVariable(name=self.FIELDNAMEMSGID)]+list(corpus.domain)
         for columnName in self.mixSorted(columnNames):
             domain.append(ContinuousVariable(name=columnName))
         dataOut = []
+        metasOut = []
         for i in range(0,len(corpus)):
+            fileName = corpus.metas[i][self.fieldIdFile]
+            metasOut.append(fileName)
             row = [i+1]+list(corpus[i].values())
             for columnName in self.mixSorted(columnNames):
                 if not re.match("^\d+$",columnName) or int(liwcResultTable[i][self.NBROFMATCHES]) == 0:
@@ -200,7 +207,7 @@ class LIWC(OWWidget):
                 else:
                     row.append(100.0*float(liwcResultTable[i][columnName])/float(liwcResultTable[i][self.NBROFMATCHES]))
             dataOut.append(row)
-        table = Table.from_list(Domain(domain),dataOut)
+        table = Table.from_numpy(Domain(domain),np.array(dataOut))
         return(table) 
 
     @Inputs.corpus
