@@ -9,6 +9,7 @@ from Orange.widgets.widget import OWWidget, Input, Output
 from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, StringVariable
 from nltk import word_tokenize
 from orangecontrib.text.corpus import Corpus
+from operator import itemgetter
 
 # Create the widget
 class LIWC(OWWidget):
@@ -26,11 +27,13 @@ class LIWC(OWWidget):
     COMMAND = sys.argv.pop(0)
     TEXTBOUNDARY = "%"
     NBROFTOKENS = "NBROFTOKENS"
-    NBROFMATCHES = "Number of Matches"
+    NBROFMATCHES = "Number of matches"
     MAXPREFIXLEN = 10
     TOKENID = 0
     LEMMAID = 1
     NUMBER = "number"
+    SPACE = " "
+    SEPARATOR = " "
     numberId = -1
 
     class Inputs:
@@ -57,8 +60,8 @@ class LIWC(OWWidget):
 
 
     def prepareText(self, text):
-        text = re.sub("</*line>", " ", text)
-        text = re.sub(">>+", " ", text)
+        text = re.sub("</*line>", self.SPACE, text)
+        text = re.sub(">>+", self.SPACE, text)
         return word_tokenize(text)
 
     def isNumber(self, string):
@@ -75,17 +78,17 @@ class LIWC(OWWidget):
             sys.exit(self.COMMAND + ": liwc dictionary starts with unexpected text: " + text)
 
     def readFeatures(self, inFile):
-        features = {}
+        featureNames = {}
         for line in inFile:
             line = line.strip()
             if line == self.TEXTBOUNDARY:
                 break
             fields = line.split()
             featureId = fields.pop(0)
-            featureName = " ".join(fields)
-            features[featureId] = featureName
+            featureName = self.SPACE.join(fields)
+            featureNames[featureId] = featureName
             if featureName == self.NUMBER: self.numberId = featureId
-        return (features)
+        return(featureNames)
 
     def makeUniqueElements(self, inList):
         outList = []
@@ -94,7 +97,7 @@ class LIWC(OWWidget):
             if not element in seen:
                 outList.append(element)
                 seen[element] = True
-        return outList
+        return(outList)
 
     def readWords(self, inFile):
         words = {}
@@ -116,7 +119,7 @@ class LIWC(OWWidget):
                     words[word] = fields
                 else:
                     words[word] = self.makeUniqueElements(words[word] + fields)
-        return (words, prefixes)
+        return(words, prefixes)
 
     def readLiwc(self, inFileName):
         try:
@@ -124,45 +127,48 @@ class LIWC(OWWidget):
         except Exception as e:
             sys.exit(self.COMMAND + ": cannot read LIWC dictionary " + inFileName)
         self.readEmpty(inFile)
-        features = self.readFeatures(inFile)
+        featureNames = self.readFeatures(inFile)
         words, prefixes = self.readWords(inFile)
         inFile.close()
-        return (features, words, prefixes)
+        return(featureNames, words, prefixes)
 
     def findLongestPrefix(self, prefixes, word):
         while not word in prefixes and len(word) > 0:
             chars = list(word)
             chars.pop(-1)
             word = "".join(chars)
-        return (word)
+        return(word)
 
-    def addFeatureToCounts(self, counts, feature):
-        if feature in counts:
-            counts[feature] += 1
+    def addFeatureToCounts(self, counts, feature, featureNames=None):
+        key = feature
+        if featureNames != None and feature in featureNames: 
+            key = feature+self.SPACE+featureNames[feature]
+        if key in counts:
+            counts[key] += 1
         else:
-            counts[feature] = 1
+            counts[key] = 1
 
-    def text2liwc(self, words, prefixes, tokens):
+    def text2liwc(self, words, prefixes, featureNames, tokens):
         counts = {}
         for word in tokens:
             if word in words:
                 self.addFeatureToCounts(counts, self.NBROFMATCHES)
                 for feature in words[word]:
                     if feature.isdigit():
-                        self.addFeatureToCounts(counts, feature)
+                        self.addFeatureToCounts(counts, feature, featureNames)
             longestPrefix = self.findLongestPrefix(prefixes, word)
             if longestPrefix != "":
                 self.addFeatureToCounts(counts, self.NBROFMATCHES)
                 for feature in prefixes[longestPrefix]:
-                    self.addFeatureToCounts(counts, feature)
+                    self.addFeatureToCounts(counts, feature, featureNames)
             if self.isNumber(word):
                 self.addFeatureToCounts(counts, self.NBROFMATCHES)
                 self.addFeatureToCounts(counts, "Number count")
         return(counts)
 
-    def liwcResults(self, text, words, prefixes):
+    def liwcResults(self, text, words, prefixes, featureNames):
         tokens = self.prepareText(text)
-        counts = self.text2liwc(words, prefixes, tokens)
+        counts = self.text2liwc(words, prefixes, featureNames, tokens)
         return(counts)
 
     def getColumnNames(self,thisList):
@@ -181,19 +187,31 @@ class LIWC(OWWidget):
                 if not columnName in row: table[-1][columnName] = '0'
         return(table,columnNames)
 
-    def mixSorted(self,thisList):
-        strList = []
-        numList = []
-        for i in range(0,len(thisList)):
-            if re.match("^\d+$",thisList[i]): numList.append(int(thisList[i]))
-            else: strList.append(thisList[i])
-        return(sorted(strList)+[str(x) for x in sorted(numList)])
+    def keyCombine(self,number,string):
+        if string == "": 
+            if number > 0: return(str(number))
+            else: return("")
+        elif number > 0: return(str(number)+self.SEPARATOR+string)
+        else: return(string)
+
+    def keySplit(self,key):
+         keyParts = key.split(self.SEPARATOR)
+         if len(keyParts) > 0 and re.match("^\d+$",keyParts[0]):
+             number = keyParts.pop(0)
+             return(int(number),self.SEPARATOR.join(keyParts))
+         else:
+             return(0,self.SEPARATOR.join(keyParts))
+
+    def sortKeys(self,keys):
+        splitKeys = [self.keySplit(k) for k in keys]
+        sortedKeys = sorted(splitKeys,key=itemgetter(0,1))
+        return([self.keyCombine(k[0],k[1]) for k in sortedKeys])
 
     def dataCombine(self,corpus,liwcResultList):
         liwcResultTable,columnNames = self.list2table(liwcResultList)
         self.fieldIdFile = self.getFieldId(self.corpus, self.FIELDNAMEFILE)
         domain = [ContinuousVariable(name=self.FIELDNAMEMSGID)]+list(corpus.domain)
-        for columnName in self.mixSorted(columnNames):
+        for columnName in self.sortKeys(columnNames):
             domain.append(ContinuousVariable(name=columnName))
         dataOut = []
         metasOut = []
@@ -201,7 +219,7 @@ class LIWC(OWWidget):
             fileName = corpus.metas[i][self.fieldIdFile]
             metasOut.append(fileName)
             row = [i+1]+list(corpus[i].values())
-            for columnName in self.mixSorted(columnNames):
+            for columnName in self.sortKeys(columnNames):
                 if not re.match("^\d+$",columnName) or int(liwcResultTable[i][self.NBROFMATCHES]) == 0:
                     row.append(int(liwcResultTable[i][columnName]))
                 else:
@@ -220,12 +238,12 @@ class LIWC(OWWidget):
         else:
             self.fieldIdText = self.getFieldId(self.corpus, self.FIELDNAMETEXT)
             self.fieldIdExtra = self.getFieldId(self.corpus, self.FIELDNAMEEXTRA)
-            features, words, prefixes = self.readLiwc(self.LIWCFILE)
+            featureNames, words, prefixes = self.readLiwc(self.LIWCFILE)
             self.progress.iter = len(self.corpus)
             liwcResultList = []
             for msgId in range(0, len(self.corpus.metas)):
                 text = str(self.corpus.metas[msgId][self.fieldIdText])
-                liwcResultList.append(self.liwcResults(text, words, prefixes))
+                liwcResultList.append(self.liwcResults(text, words, prefixes, featureNames))
                 self.progress.advance()
             self.table = self.dataCombine(self.corpus,liwcResultList)
         self.Outputs.table.send(self.table)
