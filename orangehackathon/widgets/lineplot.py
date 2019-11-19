@@ -20,12 +20,14 @@ class LinePlot(OWWidget):
     FIELDNAMEDATE = "date"
     FIELDNAMENONE = "NONE"
     FIELDNAMEMSGID = "msg id"
+    WORDS = "words"
+    MESSAGES = "messages"
     storedTable = None
     coloredColumn = -1
     plotId = 0
     xColumn = 0
     yColumn = 0
-    connect = "words"
+    connect = MESSAGES
 
     class Inputs:
         table = Input("Data", Table)
@@ -53,7 +55,7 @@ class LinePlot(OWWidget):
         form.addRow("color:",
                 gui.comboBox(None, self, "coloredColumn",items=columnNames+[self.FIELDNAMENONE]))
         form.addRow("connect:",
-                gui.comboBox(None, self, "connect",items=["words","messages"]))
+                gui.comboBox(None, self, "connect",items=[self.MESSAGES,self.WORDS]))
         form.addRow(gui.button(None, self, 'draw', self.redraw))
 
     def getFieldValue(self,table,fieldName,rowId):
@@ -119,7 +121,7 @@ class LinePlot(OWWidget):
             currentMsgId = self.getFieldValue(self.storedTable,self.FIELDNAMEMSGID,i)
             newX = self.getFieldValue(self.storedTable,columnNames[self.xColumn],i)
             newY = self.getFieldValue(self.storedTable,columnNames[self.yColumn],i)
-            if i > 0 and currentMsgId != lastMsgId and self.connect != "words":
+            if i > 0 and currentMsgId != lastMsgId and self.connect != self.WORDS:
                 ax.plot([dataX[-1],newX],[dataY[-1],newY],color=self.DEFAULTCOLOR,label=lastDataValue)
             if currentMsgId != lastMsgId and len(dataX) > 0:
                 if self.coloredColumn >= 0 and self.coloredColumn < len(columnNames):
@@ -184,5 +186,5 @@ class LinePlot(OWWidget):
         plt.show()
 
     def drawGraph(self):
-        if self.connect == "words": self.plotWords()
+        if self.connect == self.WORDS: self.plotWords()
         else: self.plotMessages()
