@@ -12,7 +12,7 @@ from orangecontrib.text import Corpus
 from Orange.widgets.utils.widgetpreview import WidgetPreview
 from Orange.data import Table, Domain
 from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, StringVariable
-from orangehackathon.lib.tactusloaderLIB import makeFileName,processFile
+from orangehackathon.libs.tactusloaderLIB import makeFileName,processFile
 
 class TactusLoader(OWWidget):
     DEFAULTDIRECTORY = "/home/erikt/projects/e-mental-health/usb/tmp/20190917"
