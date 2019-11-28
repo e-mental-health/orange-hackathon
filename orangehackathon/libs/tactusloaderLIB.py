@@ -1,6 +1,7 @@
-from pathlib import Path
+from Orange.data import Table, Domain
+from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, StringVariable
 
-import pandas as pd
+import numpy as np
 import xml.etree.ElementTree as ET
 import re
 
@@ -20,6 +21,14 @@ MAILBODYID = 5
 MAXIDLEN = 4
 INFILEPREFIX = "AdB"
 INFILESUFFIX = "-an.xml"
+
+def corpusDomain(mails):
+    return(Domain([TimeVariable.make("date"),                                 \
+                   DiscreteVariable.make("from",set([x[1] for x in mails])),  \
+                   DiscreteVariable.make("to",  set([x[2] for x in mails]))], \
+            metas=[StringVariable.make("file"),                               \
+                   StringVariable.make("subject"),                            \
+                   StringVariable.make("text")]))
 
 def makeFileName(patientId):
     if patientId == "": patientId = DEFAULTPATIENTID
@@ -108,9 +117,12 @@ def processFile(directory,patientFileName):
     try:
         tree = ET.parse(directory+"/"+patientFileName)
         root = tree.getroot()
-        return(getEmailData(root,patientFileName))
+        mails = getEmailData(root,patientFileName)
+        domain = corpusDomain(mails)
+        table = Table.from_list(domain,mails)
+        return(table)
     except:
-        print("File read error:",directory+"/"+patientFileName)
+        print("File processing error:",directory+"/"+patientFileName)
         return([])
 
 if __name__ == "__main__":
