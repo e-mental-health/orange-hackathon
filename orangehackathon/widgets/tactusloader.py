@@ -12,7 +12,7 @@ from orangecontrib.text import Corpus
 from Orange.widgets.utils.widgetpreview import WidgetPreview
 from Orange.data import Table, Domain
 from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, StringVariable
-from orangehackathon.libs.tactusloaderLIB import makeFileName,processFile
+import orangehackathon.libs.tactusloaderLIB as tactusloaderLIB
 
 class TactusLoader(OWWidget):
     DEFAULTDIRECTORY = "/home/erikt/projects/e-mental-health/usb/tmp/20190917"
@@ -57,14 +57,6 @@ class TactusLoader(OWWidget):
         form.addRow(gui.button(None, self, 'prev', self.prev),gui.button(None, self, 'next', self.next))
         form.addRow(gui.button(None, self, 'load', self.load))
 
-    def corpusDomain(self,mails):
-        return(Domain([TimeVariable.make("date"),                                 \
-                       DiscreteVariable.make("from",set([x[1] for x in mails])),  \
-                       DiscreteVariable.make("to",  set([x[2] for x in mails]))], \
-                metas=[StringVariable.make("file"),                               \
-                       StringVariable.make("subject"),                            \
-                       StringVariable.make("text")]))
-
     def prev(self):
         self.patientId = str(int(self.patientId)-1)
         self.load()
@@ -74,11 +66,8 @@ class TactusLoader(OWWidget):
         self.load()
 
     def load(self):
-        patientFileName = makeFileName(self.patientId)
-        mails = processFile(self.directory,patientFileName)
-
-        domain = self.corpusDomain(mails)
-        table = Table.from_list(domain,mails)
+        patientFileName = tactusloaderLIB.makeFileName(self.patientId)
+        table = tactusloaderLIB.processFile(self.directory,patientFileName)
         self.Outputs.data.send(Corpus.from_table(table.domain, table))
 
 if __name__ == "__main__":
