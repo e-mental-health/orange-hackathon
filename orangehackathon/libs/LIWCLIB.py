@@ -19,6 +19,7 @@ LIWCFILE = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../widgets/
 TEXTBOUNDARY = "%"
 NBROFTOKENS = "NBROFTOKENS"
 NBROFMATCHES = "Number of matches"
+NUMBERCOUNT = "number count"
 MAXPREFIXLEN = 10
 TOKENID = 0
 LEMMAID = 1
@@ -142,7 +143,7 @@ def text2liwc(words, prefixes, featureNames, tokens):
                 addFeatureToCounts(counts, feature, featureNames)
         if isNumber(word):
             addFeatureToCounts(counts, NBROFMATCHES)
-            addFeatureToCounts(counts, "Number count")
+            addFeatureToCounts(counts, NUMBERCOUNT)
     return(counts)
 
 def liwcResults(text, words, prefixes, featureNames):
@@ -203,10 +204,10 @@ def dataCombine(corpus,liwcResultList,featureNames):
         metasOut.append([fileName])
         row = [i+1]+list(corpus[i].values())
         for columnName in sortKeys(columnNames):
-            if not re.match("^\d+$",columnName) or int(liwcResultTable[i][NBROFMATCHES]) == 0:
+            if (not re.match("^\d+\s",columnName) and columnName != NUMBERCOUNT) or int(liwcResultTable[i][NBROFMATCHES]) == 0:
                 row.append(int(liwcResultTable[i][columnName]))
             else:
-                row.append(100.0*float(liwcResultTable[i][columnName])/float(liwcResultTable[i][NBROFMATCHES]))
+                row.append(float(liwcResultTable[i][columnName])/float(liwcResultTable[i][NBROFMATCHES]))
         dataOut.append(row)
     table = Table.from_numpy(Domain(domain,metas=metas),np.array(dataOut),metas=np.array(metasOut))
     return(table) 
