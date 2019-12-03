@@ -1,9 +1,11 @@
 from Orange.data import Table, Domain
 from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, StringVariable
 
+import gzip
 import numpy as np
-import xml.etree.ElementTree as ET
+import os
 import re
+import xml.etree.ElementTree as ET
 
 DEFAULTDIRECTORY = "/home/erikt/projects/e-mental-health/usb/tmp/20190917"
 DEFAULTPATIENTID = "1"
@@ -115,8 +117,12 @@ def getEmailData(root,patientFileName):
 def processFile(directory,patientFileName):
     if directory == "": directory = DEFAULTDIRECTORY
     try:
-        tree = ET.parse(directory+"/"+patientFileName)
-        root = tree.getroot()
+        if re.match(r"^.*\.gz$",patientFileName):
+            with gzip.open(directory+"/"+patientFileName,"rb") as f: text = f.read()
+            root = ET.fromstring(text)
+        else:
+            tree = ET.parse(directory+"/"+patientFileName)
+            root = tree.getroot()
         mails = getEmailData(root,patientFileName)
         domain = corpusDomain(mails)
         table = Table.from_list(domain,mails)
