@@ -1,4 +1,3 @@
-from pathlib import Path
 import xml.etree.ElementTree as ET
 import re
 import pandas as pd
