@@ -127,5 +127,5 @@ def processCorpus(corpus):
         coordinatesList.append(str(duplicateRefStartEnds))
         markedText = markDuplicates(text,duplicateRefStartEnds)
         setFieldValue(corpus,FIELDNAMETEXT,msgId,markedText)
-    corpus = addMetaDataColumn(corpus,coordinatesList,COLUMNDOMAIN)
+    if len(corpus) > 0: corpus = addMetaDataColumn(corpus,coordinatesList,COLUMNDOMAIN)
     return(corpus)

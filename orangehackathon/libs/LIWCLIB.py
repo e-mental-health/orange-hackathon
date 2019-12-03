@@ -213,6 +213,7 @@ def dataCombine(corpus,liwcResultList,featureNames):
     return(table) 
 
 def processCorpus(corpus):
+    if len(corpus) == 0: return(corpus)
     fieldIdText = getFieldId(corpus, FIELDNAMETEXT)
     fieldIdExtra = getFieldId(corpus, FIELDNAMEEXTRA)
     featureNames, words, prefixes = readLiwc(LIWCFILE)
