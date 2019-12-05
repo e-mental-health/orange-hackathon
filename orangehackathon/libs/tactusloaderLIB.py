@@ -121,8 +121,12 @@ def processFile(directory,patientFileName):
             with gzip.open(directory+"/"+patientFileName,"rb") as f: text = f.read()
             root = ET.fromstring(text)
         else:
-            tree = ET.parse(directory+"/"+patientFileName)
-            root = tree.getroot()
+            try:
+                tree = ET.parse(directory+"/"+patientFileName)
+                root = tree.getroot()
+            except:
+                with gzip.open(directory+"/"+patientFileName+".gz","rb") as f: text = f.read()
+                root = ET.fromstring(text)
         mails = getEmailData(root,patientFileName)
         domain = corpusDomain(mails)
         table = Table.from_list(domain,mails)
