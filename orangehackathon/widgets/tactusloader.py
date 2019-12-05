@@ -26,6 +26,7 @@ class TactusLoader(OWWidget):
     def __init__(self):
         super().__init__()
         self.progress = gui.ProgressBar(self, 10)
+        self.label = gui.widgetLabel(self.controlArea)
         self.drawWindow()
 
     class Outputs:
@@ -67,7 +68,10 @@ class TactusLoader(OWWidget):
     def load(self):
         patientFileName = tactusloaderLIB.makeFileName(self.patientId)
         table = tactusloaderLIB.processFile(self.directory,patientFileName)
-        self.Outputs.data.send(Corpus.from_table(table.domain, table))
+        if len(table) > 0: 
+            self.Outputs.data.send(Corpus.from_table(table.domain, table))
+        else:
+            self.label.setText("Warning: non-existent data file\n"+self.directory+"/"+patientFileName+"\nor empty corpus")
 
 if __name__ == "__main__":
     WidgetPreview(TactusLoader).run()
