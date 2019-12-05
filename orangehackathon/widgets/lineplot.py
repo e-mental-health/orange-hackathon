@@ -78,9 +78,6 @@ class LinePlot(OWWidget):
             self.drawGraph()
 
     def getColumnValues(self,table,columnName):
-        print(table[0])
-        print(columnName)
-        print(self.getFieldValue(table,columnName,0))
         return(list(set([self.getFieldValue(table,columnName,i) for i in range(0,len(table))])))
 
     def makeColorNames(self,columnName):
