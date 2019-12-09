@@ -1,6 +1,8 @@
 import re
 import sys
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 # alternatives: seaborn, plotnine, 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFormLayout
@@ -25,8 +27,6 @@ class LinePlot(OWWidget):
     MESSAGES = "messages"
     storedTable = None
     coloredColumn = -1
-    fileName = ""
-    plotId = 0
     xColumn = 0
     yColumn = 0
     connect = MESSAGES
@@ -38,6 +38,9 @@ class LinePlot(OWWidget):
         super().__init__()
         self.label = gui.widgetLabel(self.controlArea)
         self.progress = gui.ProgressBar(self, 10)
+        self.figure = Figure()
+        self.ax = self.figure.add_subplot(111)
+        self.canvas = FigureCanvas(self.figure)
 
     def redraw(self):
         if self.storedTable != None: self.drawGraph()
@@ -59,6 +62,7 @@ class LinePlot(OWWidget):
         form.addRow("connect:",
                 gui.comboBox(None, self, "connect",items=[self.MESSAGES,self.WORDS]))
         form.addRow(gui.button(None, self, 'draw', self.redraw))
+        form.addWidget(self.canvas)
 
     def getFieldValue(self,table,fieldName,rowId):
         if rowId < len(table):
@@ -112,9 +116,8 @@ class LinePlot(OWWidget):
     def plotWords(self):
         OWWidget.progressBarInit(self)
         columnNames = [x.name for x in self.storedTable.domain.variables]
-        self.plotId += 1
-        plt.figure(self.plotId)
-        ax = plt.subplot(111)
+        ax = self.ax
+        ax.clear()
         lastMsgId = ""
         lastDataValue = None
         dataX = []
@@ -151,14 +154,14 @@ class LinePlot(OWWidget):
             handlesUnique,labelsUnique = self.simplifyLegend(ax)
             ax.legend(handlesUnique,labelsUnique)
         plt.title(title)
-        plt.show()
+        self.canvas.draw()
+        self.canvas.repaint()
 
     def plotMessages(self):
         OWWidget.progressBarInit(self)
         columnNames = [x.name for x in self.storedTable.domain.variables]
-        self.plotId += 1
-        plt.figure(self.plotId)
-        ax = plt.subplot(111)
+        ax = self.ax
+        ax.clear()
         self.progress.iter = len(self.storedTable)
         self.fileName = str(self.getFieldValue(self.storedTable,self.FIELDNAMEFILE,0))
         if self.coloredColumn < 0 or self.coloredColumn >= len(columnNames):
@@ -190,7 +193,8 @@ class LinePlot(OWWidget):
             handlesUnique,labelsUnique = self.simplifyLegend(ax)
             ax.legend(handlesUnique,labelsUnique)
         plt.title(title)
-        plt.show()
+        self.canvas.draw()
+        self.canvas.repaint()
 
     def drawGraph(self):
         if self.connect == self.WORDS: self.plotWords()
