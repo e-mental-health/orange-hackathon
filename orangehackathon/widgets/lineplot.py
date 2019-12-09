@@ -22,6 +22,7 @@ class LinePlot(OWWidget):
     FIELDNAMEDATE = "date"
     FIELDNAMENONE = "NONE"
     FIELDNAMEMSGID = "msg id"
+    FIELDNAMEFILE = "file"
     WORDS = "words"
     MESSAGES = "messages"
     storedTable = None
@@ -64,9 +65,13 @@ class LinePlot(OWWidget):
         form.addWidget(self.canvas)
 
     def getFieldValue(self,table,fieldName,rowId):
-        for i in range(0,len(table.domain)):
-            if table.domain[i].name == fieldName:
-                return(table[rowId].list[i])
+        if rowId < len(table):
+            for i in range(0,len(table.domain)):
+                if table.domain[i].name == fieldName:
+                    return(table[rowId].list[i])
+            for i in range(0,len(table.domain.metas)):
+                if table.domain.metas[i].name == fieldName:
+                    return(table[rowId].metas[i])
         sys.exit("getFieldValue: field name not found: "+fieldName)
 
     @Inputs.table
@@ -143,7 +148,7 @@ class LinePlot(OWWidget):
             if self.coloredColumn >= 0 and self.coloredColumn < len(columnNames): 
                 color = colorNames[lastDataValue]
             plt.plot(dataX,dataY,color=color,label=lastDataValue)
-        title = "x-axis: \""+columnNames[self.xColumn]+"\""+"; y-axis: \""+columnNames[self.yColumn]+"\""
+        title = "file: "+self.fileName+"; x-axis: \""+columnNames[self.xColumn]+"\""+"; y-axis: \""+columnNames[self.yColumn]+"\""
         if self.coloredColumn >= 0 and self.coloredColumn < len(columnNames):
             title += "; color: \""+columnNames[self.coloredColumn]+"\""
             handlesUnique,labelsUnique = self.simplifyLegend(ax)
@@ -158,6 +163,7 @@ class LinePlot(OWWidget):
         ax = self.ax
         ax.clear()
         self.progress.iter = len(self.storedTable)
+        self.fileName = str(self.getFieldValue(self.storedTable,self.FIELDNAMEFILE,0))
         if self.coloredColumn < 0 or self.coloredColumn >= len(columnNames):
             dataX = []
             dataY = []
@@ -181,7 +187,7 @@ class LinePlot(OWWidget):
                         dataX.append(newX)
                         dataY.append(newY)
                     if len(dataX) > 0: ax.plot(dataX,dataY,color=colorNames[columnValue],label=columnValue)
-        title = "x-axis: \""+columnNames[self.xColumn]+"\""+"; y-axis: \""+columnNames[self.yColumn]+"\""
+        title = "file: "+self.fileName+"; x-axis: \""+columnNames[self.xColumn]+"\""+"; y-axis: \""+columnNames[self.yColumn]+"\""
         if self.coloredColumn >= 0 and self.coloredColumn < len(columnNames):
             title += "; color: \""+columnNames[self.coloredColumn]+"\""
             handlesUnique,labelsUnique = self.simplifyLegend(ax)
