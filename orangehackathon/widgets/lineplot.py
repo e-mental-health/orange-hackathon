@@ -1,10 +1,9 @@
 import re
 import sys
-import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 # alternatives: seaborn, plotnine, 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt,pyqtSignal
 from PyQt5.QtWidgets import QFormLayout
 from Orange.widgets.widget import OWWidget, Input
 from Orange.widgets import gui
@@ -30,39 +29,58 @@ class LinePlot(OWWidget):
     xColumn = 0
     yColumn = 0
     connect = MESSAGES
+    form = None
+    ax = None
 
     class Inputs:
         table = Input("Data", Table)
 
     def __init__(self):
         super().__init__()
-        self.label = gui.widgetLabel(self.controlArea)
-        self.progress = gui.ProgressBar(self, 10)
+        self.form = QFormLayout()
         self.figure = Figure()
-        self.ax = self.figure.add_subplot(111)
         self.canvas = FigureCanvas(self.figure)
+        self.form.addWidget(self.canvas)
+        self.form.setFieldGrowthPolicy(self.form.AllNonFixedFieldsGrow)
+        self.form.setVerticalSpacing(0)
+        self.form.setLabelAlignment(Qt.AlignLeft)
+        gui.widgetBox(self.controlArea, True, orientation=self.form)
+
+    @Inputs.table
+    def storeTable(self,table):
+        if table != None: 
+            self.storedTable = table
+            # 20191210 warning: reloading table may require replacing form
+            # because set of features changed
+            # self.clearCanvas()
+            self.drawGraph()
+            self.drawWindow()
 
     def redraw(self):
         if self.storedTable != None: self.drawGraph()
 
+    def drawGraph(self):
+        self.ax = self.figure.add_subplot(111)
+        if self.connect == self.WORDS: self.plotWords()
+        else: self.plotMessages()
+
     def drawWindow(self):
-        form = QFormLayout()
-        form.setFieldGrowthPolicy(form.AllNonFixedFieldsGrow)
-        form.setVerticalSpacing(0)
-        form.setLabelAlignment(Qt.AlignLeft)
-        gui.widgetBox(self.controlArea, True, orientation=form)
+        form = self.form
         if self.storedTable == None: columnNames = []
         else: columnNames = [x.name for x in self.storedTable.domain.variables]
-        form.addRow("x-axis:",
-                gui.comboBox(None, self, "xColumn",items=columnNames))
-        form.addRow("y-axis:",
-                gui.comboBox(None, self, "yColumn",items=columnNames))
-        form.addRow("color:",
-                gui.comboBox(None, self, "coloredColumn",items=columnNames+[self.FIELDNAMENONE]))
-        form.addRow("connect:",
-                gui.comboBox(None, self, "connect",items=[self.MESSAGES,self.WORDS]))
-        form.addRow(gui.button(None, self, 'draw', self.redraw))
-        form.addWidget(self.canvas)
+        if self.form.rowCount() <= 1:
+            form.addRow("x-axis:",gui.comboBox(None, self, "xColumn",items=columnNames,callback=self.redraw))
+            form.addRow("y-axis:",gui.comboBox(None, self, "yColumn",items=columnNames,callback=self.redraw))
+            form.addRow("color:",gui.comboBox(None, self, "coloredColumn",items=columnNames+[self.FIELDNAMENONE],callback=self.redraw))
+            form.addRow("connect:",gui.comboBox(None, self, "connect",items=[self.MESSAGES,self.WORDS],callback=self.redraw))
+            form.addRow(gui.button(None, self, 'draw', self.redraw))
+
+    def clearCanvas(self):
+        while self.form.rowCount() > 1: 
+            print("deleting line plot row...")
+            self.form.removeRow(1)
+        self.canvas.draw()
+        self.canvas.repaint()
 
     def getFieldValue(self,table,fieldName,rowId):
         if rowId < len(table):
@@ -73,13 +91,6 @@ class LinePlot(OWWidget):
                 if table.domain.metas[i].name == fieldName:
                     return(table[rowId].metas[i])
         sys.exit("getFieldValue: field name not found: "+fieldName)
-
-    @Inputs.table
-    def storeTable(self,table):
-        if table != None: 
-            self.storedTable = table
-            self.drawWindow()
-            self.drawGraph()
 
     def getColumnValues(self,table,columnName):
         return(list(set([self.getFieldValue(table,columnName,i) for i in range(0,len(table))])))
@@ -114,7 +125,6 @@ class LinePlot(OWWidget):
         return(sorted(strList)+[str(x) for x in sorted(numList)])
 
     def plotWords(self):
-        OWWidget.progressBarInit(self)
         columnNames = [x.name for x in self.storedTable.domain.variables]
         ax = self.ax
         ax.clear()
@@ -122,7 +132,6 @@ class LinePlot(OWWidget):
         lastDataValue = None
         dataX = []
         dataY = []
-        self.progress.iter = len(self.storedTable)
         color = self.DEFAULTCOLOR
         if self.coloredColumn >= 0 and self.coloredColumn < len(columnNames):
             colorNames = self.makeColorNames(columnNames[self.coloredColumn])
@@ -142,27 +151,24 @@ class LinePlot(OWWidget):
             dataY.append(newY)
             lastMsgId = currentMsgId
             lastDataValue = self.getFieldValue(self.storedTable,columnNames[self.coloredColumn],i)
-            self.progress.advance()
         if len(dataX) > 0:
             ax.plot(dataX,dataY,color=color,label=lastDataValue)
             if self.coloredColumn >= 0 and self.coloredColumn < len(columnNames): 
                 color = colorNames[lastDataValue]
-            plt.plot(dataX,dataY,color=color,label=lastDataValue)
+            ax.plot(dataX,dataY,color=color,label=lastDataValue)
         title = "file: "+self.fileName+"; x-axis: \""+columnNames[self.xColumn]+"\""+"; y-axis: \""+columnNames[self.yColumn]+"\""
         if self.coloredColumn >= 0 and self.coloredColumn < len(columnNames):
             title += "; color: \""+columnNames[self.coloredColumn]+"\""
             handlesUnique,labelsUnique = self.simplifyLegend(ax)
             ax.legend(handlesUnique,labelsUnique)
-        plt.title(title)
+        ax.title.set_text(title)
         self.canvas.draw()
         self.canvas.repaint()
 
     def plotMessages(self):
-        OWWidget.progressBarInit(self)
         columnNames = [x.name for x in self.storedTable.domain.variables]
         ax = self.ax
         ax.clear()
-        self.progress.iter = len(self.storedTable)
         self.fileName = str(self.getFieldValue(self.storedTable,self.FIELDNAMEFILE,0))
         if self.coloredColumn < 0 or self.coloredColumn >= len(columnNames):
             dataX = []
@@ -192,10 +198,7 @@ class LinePlot(OWWidget):
             title += "; color: \""+columnNames[self.coloredColumn]+"\""
             handlesUnique,labelsUnique = self.simplifyLegend(ax)
             ax.legend(handlesUnique,labelsUnique)
-        plt.title(title)
+        ax.title.set_text(title)
         self.canvas.draw()
         self.canvas.repaint()
 
-    def drawGraph(self):
-        if self.connect == self.WORDS: self.plotWords()
-        else: self.plotMessages()
