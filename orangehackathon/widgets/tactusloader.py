@@ -14,14 +14,12 @@ from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, Stri
 import orangehackathon.libs.tactusloaderLIB as tactusloaderLIB
 
 class TactusLoader(OWWidget):
-    DEFAULTDIRECTORY = "/home/erikt/projects/e-mental-health/usb/tmp/20190917"
-    DEFAULTPATIENTID = "1"
     name = "Tactus Mail Loader"
     description = "Reads Tactus mails from directory"
     icon = "icons/mail.svg"
     category = "Hackathon"
     directory = ""
-    patientId = DEFAULTPATIENTID
+    patientId = tactusloaderLIB.DEFAULTPATIENTID
 
     def __init__(self):
         super().__init__()
@@ -45,7 +43,7 @@ class TactusLoader(OWWidget):
                 controlWidth=100,
                 orientation=Qt.Horizontal,
                 tooltip="Tooltip",
-                placeholderText=self.DEFAULTDIRECTORY))
+                placeholderText=tactusloaderLIB.DEFAULTDIRECTORY))
         form.addRow(
             "patient id:",
             gui.lineEdit(
@@ -53,7 +51,7 @@ class TactusLoader(OWWidget):
                 controlWidth=100,
                 orientation=Qt.Horizontal,
                 tooltip="Tooltip",
-                placeholderText=self.DEFAULTPATIENTID))
+                placeholderText=tactusloaderLIB.DEFAULTPATIENTID))
         form.addRow(gui.button(None, self, 'prev', self.prev),gui.button(None, self, 'next', self.next))
         form.addRow(gui.button(None, self, 'load', self.load))
 
