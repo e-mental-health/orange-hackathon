@@ -12,6 +12,7 @@ COMMAND = "LIWC"
 EMPTYLIST = []
 EMPTYSTRING = ""
 FIELDNAMEFILE = "file"
+FIELDNAMECOUNSELOR = "counselor"
 FIELDNAMETEXT = "text"
 FIELDNAMEEXTRA = "extra"
 FIELDNAMEMSGID = "msg id"
@@ -193,15 +194,17 @@ def sortKeys(keys):
 def dataCombine(corpus,liwcResultList,featureNames):
     liwcResultTable,columnNames = list2table(liwcResultList,featureNames)
     fieldIdFile = getFieldId(corpus, FIELDNAMEFILE)
+    fieldIdCounselor = getFieldId(corpus, FIELDNAMECOUNSELOR)
     domain = [ContinuousVariable(name=FIELDNAMEMSGID)]+list(corpus.domain.variables)
     for columnName in sortKeys(columnNames):
         domain.append(ContinuousVariable(name=columnName,number_of_decimals=NBROFDECIMALS))
-    metas = [StringVariable(name="file")]
+    metas = [StringVariable(name=FIELDNAMEFILE),StringVariable(name=FIELDNAMECOUNSELOR)]
     dataOut = []
     metasOut = []
     for i in range(0,len(corpus)):
         fileName = corpus.metas[i][fieldIdFile]
-        metasOut.append([fileName])
+        counselorId = corpus.metas[i][fieldIdCounselor]
+        metasOut.append([fileName,counselorId])
         row = [i+1]+list(corpus[i].values())
         for columnName in sortKeys(columnNames):
             if (not re.match("^\d+\s",columnName) and columnName != NUMBERCOUNT) or int(liwcResultTable[i][NBROFMATCHES]) == 0:

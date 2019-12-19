@@ -7,9 +7,10 @@ import os
 import re
 import xml.etree.ElementTree as ET
 
-DEFAULTDIRECTORY = "/home/erikt/projects/e-mental-health/usb/tmp/20190917"
+DEFAULTDIRECTORY = "/home/erikt/projects/e-mental-health/usb/releases/20191217"
 DEFAULTPATIENTID = "1"
-MESSAGES = "./Messages/Message"
+COUNSELORIDTAG = "./AssignedCounselor"
+MESSAGETAG = "./Messages/Message"
 SENDER = "Sender"
 RECIPIENT = "Recipients"
 SENDER = "Sender"
@@ -18,19 +19,28 @@ BODY = "Body"
 DATESENT = "DateSent"
 CLIENT = "CLIENT"
 COUNSELOR = "COUNSELOR"
+FIELDDATE = "date"
+FIELDFROM = "from"
+FIELDTO = "to"
+FIELDFILE = "file"
+FIELDCOUNSELOR = "counselor"
+FIELDSUBJECT = "subject"
+FIELDTEXT = "text"
 MAILDATEID = 3
 MAILBODYID = 5
 MAXIDLEN = 4
 INFILEPREFIX = "AdB"
 INFILESUFFIX = "-an.xml"
+QUESTIONMARK = "?"
 
 def corpusDomain(mails):
-    return(Domain([TimeVariable.make("date"),                                 \
-                   DiscreteVariable.make("from",set([x[1] for x in mails])),  \
-                   DiscreteVariable.make("to",  set([x[2] for x in mails]))], \
-            metas=[StringVariable.make("file"),                               \
-                   StringVariable.make("subject"),                            \
-                   StringVariable.make("text")]))
+    return(Domain([TimeVariable.make(FIELDDATE),                              \
+                   DiscreteVariable.make(FIELDFROM,set([x[1] for x in mails])),  \
+                   DiscreteVariable.make(FIELDTO,  set([x[2] for x in mails]))], \
+            metas=[StringVariable.make(FIELDFILE),                            \
+                   StringVariable.make(FIELDCOUNSELOR),                       \
+                   StringVariable.make(FIELDSUBJECT),                         \
+                   StringVariable.make(FIELDTEXT)]))
 
 def makeFileName(patientId):
     if patientId == "": patientId = DEFAULTPATIENTID
@@ -89,10 +99,10 @@ def anonymizeCounselor(name):
     if name != CLIENT: return(COUNSELOR)
     else: return(name)
 
-def getEmailData(root,patientFileName):
+def getEmailData(root,patientFileName,counselorId):
     clientMails = []
     counselorMails = []
-    for message in root.findall(MESSAGES):
+    for message in root.findall(MESSAGETAG):
         body = ""
         date = ""
         recipient = ""
@@ -106,13 +116,20 @@ def getEmailData(root,patientFileName):
             elif child.tag == DATESENT: date = cleanupText(child.text)
             elif child.tag == SUBJECT: subject = cleanupText(child.text)
             elif child.tag == BODY: body = cleanupText(child.text)
-        if sender == CLIENT: clientMails.append([date,sender,recipient,patientFileName,subject,body])
-        else: counselorMails.append([date,sender,recipient,patientFileName,subject,body])
+        if sender == CLIENT: clientMails.append([date,sender,recipient,patientFileName,counselorId,subject,body])
+        else: counselorMails.append([date,sender,recipient,patientFileName,counselorId,subject,body])
     clientMails = cleanupMails(clientMails,counselorMails)
     counselorMails = cleanupMails(counselorMails,clientMails)
     allMails = clientMails
     allMails.extend(counselorMails)
     return(sorted(allMails,key=lambda subList:subList[MAILDATEID]))
+
+def getCounselorId(root):
+    counselorId = ""
+    for counselorIdTag in root.findall(COUNSELORIDTAG):
+        if counselorIdTag.text != None: counselorId = counselorIdTag.text
+        break
+    return(counselorId)
 
 def processFile(directory,patientFileName):
     if directory == "": directory = DEFAULTDIRECTORY
@@ -127,9 +144,10 @@ def processFile(directory,patientFileName):
             except:
                 with gzip.open(directory+"/"+patientFileName+".gz","rb") as f: text = f.read()
                 root = ET.fromstring(text)
-        mails = getEmailData(root,patientFileName)
+        counselorId = getCounselorId(root)
+        mails = getEmailData(root,patientFileName,counselorId)
         domain = corpusDomain(mails)
-        table = Table.from_list(domain,mails)
+        table = Table.from_list(domain,mails) # replaces "" in cells with "?"
         return(table)
     except:
         print("File processing error:",directory+"/"+patientFileName)
