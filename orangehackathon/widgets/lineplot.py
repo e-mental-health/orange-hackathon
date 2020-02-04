@@ -22,6 +22,7 @@ class LinePlot(OWWidget):
     FIELDNAMENONE = "NONE"
     FIELDNAMEMSGID = "msg id"
     FIELDNAMEFILE = "file"
+    SECONDSPERDAY = 86400
     WORDS = "words"
     MESSAGES = "messages"
     storedTable = None
@@ -124,6 +125,15 @@ class LinePlot(OWWidget):
             else: strList.append(thisList[i])
         return(sorted(strList)+[str(x) for x in sorted(numList)])
 
+    def normalizeXvalues(self,xValues):
+        for i in range(1,len(xValues)):
+            xValues[i] -= xValues[0]
+        xValues[0] = 0
+        return(xValues)
+
+    def convertSecondsToDays(self,xValues):
+        return([x/self.SECONDSPERDAY for x in xValues])
+
     def plotWords(self):
         columnNames = [x.name for x in self.storedTable.domain.variables]
         ax = self.ax
@@ -155,7 +165,8 @@ class LinePlot(OWWidget):
             ax.plot(dataX,dataY,color=color,label=lastDataValue)
             if self.coloredColumn >= 0 and self.coloredColumn < len(columnNames): 
                 color = colorNames[lastDataValue]
-            ax.plot(dataX,dataY,color=color,label=lastDataValue)
+            if len(dataX) > 1: ax.plot(dataX,dataY,color=color,label=lastDataValue)
+            else: ax.scatter(dataX,dataY,color=color,label=lastDataValue)
         title = "file: "+self.fileName+"; x-axis: \""+columnNames[self.xColumn]+"\""+"; y-axis: \""+columnNames[self.yColumn]+"\""
         if self.coloredColumn >= 0 and self.coloredColumn < len(columnNames):
             title += "; color: \""+columnNames[self.coloredColumn]+"\""
@@ -170,11 +181,14 @@ class LinePlot(OWWidget):
         ax = self.ax
         ax.clear()
         self.fileName = str(self.getFieldValue(self.storedTable,self.FIELDNAMEFILE,0))
+        xValues = self.normalizeXvalues([self.getFieldValue(self.storedTable,columnNames[self.xColumn],i) for i in range(0,len(self.storedTable))])
+        if columnNames[self.xColumn] == self.FIELDNAMEDATE:
+            xValues = self.convertSecondsToDays(xValues)
         if self.coloredColumn < 0 or self.coloredColumn >= len(columnNames):
             dataX = []
             dataY = []
             for i in range(0,len(self.storedTable)):
-                newX = self.getFieldValue(self.storedTable,columnNames[self.xColumn],i)
+                newX = xValues[i]
                 newY = self.getFieldValue(self.storedTable,columnNames[self.yColumn],i)
                 dataX.append(newX)
                 dataY.append(newY)
@@ -189,7 +203,7 @@ class LinePlot(OWWidget):
                 for i in range(0,len(self.storedTable)):
                     dataValue = self.getFieldValue(self.storedTable,columnNames[self.coloredColumn],i)
                     if dataValue == columnValue: 
-                        newX = self.getFieldValue(self.storedTable,columnNames[self.xColumn],i)
+                        newX = xValues[i]
                         newY = self.getFieldValue(self.storedTable,columnNames[self.yColumn],i)
                         dataX.append(newX)
                         dataY.append(newY)
