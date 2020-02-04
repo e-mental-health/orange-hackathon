@@ -96,7 +96,7 @@ class LinePlot(OWWidget):
         return(list(set([self.getFieldValue(table,columnName,i) for i in range(0,len(table))])))
 
     def makeColorNames(self,columnName):
-        columnValueList = self.getColumnValues(self.storedTable,columnName)
+        columnValueList = sorted(self.getColumnValues(self.storedTable,columnName),reverse=True)
         colorNames = {}
         for i in range(0,len(columnValueList)):
             colorNames[columnValueList[i]] = self.COLORPREFIX+str(i % 10)
@@ -178,7 +178,8 @@ class LinePlot(OWWidget):
                 newY = self.getFieldValue(self.storedTable,columnNames[self.yColumn],i)
                 dataX.append(newX)
                 dataY.append(newY)
-            ax.plot(dataX,dataY,color=self.DEFAULTCOLOR)
+            if len(dataX) > 1: ax.plot(dataX,dataY,color=self.DEFAULTCOLOR)
+            elif len(dataX) > 0: ax.scatter(dataX,dataY,color=self.DEFAULTCOLOR)
         else:
             colorNames = self.makeColorNames(columnNames[self.coloredColumn])
             columnValues = self.getColumnValues(self.storedTable,columnNames[self.coloredColumn])
@@ -192,7 +193,8 @@ class LinePlot(OWWidget):
                         newY = self.getFieldValue(self.storedTable,columnNames[self.yColumn],i)
                         dataX.append(newX)
                         dataY.append(newY)
-                    if len(dataX) > 0: ax.plot(dataX,dataY,color=colorNames[columnValue],label=columnValue)
+                if len(dataX) > 1: ax.plot(dataX,dataY,color=colorNames[columnValue],label=columnValue)
+                elif len(dataX) > 0: ax.scatter(dataX,dataY,color=colorNames[columnValue],label=columnValue)
         title = "file: "+self.fileName+"; x-axis: \""+columnNames[self.xColumn]+"\""+"; y-axis: \""+columnNames[self.yColumn]+"\""
         if self.coloredColumn >= 0 and self.coloredColumn < len(columnNames):
             title += "; color: \""+columnNames[self.coloredColumn]+"\""
