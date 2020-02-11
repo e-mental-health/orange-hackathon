@@ -1,4 +1,5 @@
 import xml.etree.ElementTree as ET
+import os
 import re
 import pandas as pd
 
@@ -14,17 +15,20 @@ from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, Stri
 import orangehackathon.libs.tactusloaderLIB as tactusloaderLIB
 
 class TactusLoader(OWWidget):
+    ALLFILES = "*"
     name = "Tactus Mail Loader"
     description = "Reads Tactus mails from directory"
     icon = "icons/mail.svg"
     category = "Hackathon"
     directory = ""
     patientId = tactusloaderLIB.DEFAULTPATIENTID
+    directory = tactusloaderLIB.DEFAULTDIRECTORY
 
     def __init__(self):
         super().__init__()
         self.progress = gui.ProgressBar(self, 10)
         self.label = gui.widgetLabel(self.controlArea)
+        self.label.setText("use patient id * for reading all AdB* files")
         self.drawWindow()
 
     class Outputs:
@@ -51,21 +55,35 @@ class TactusLoader(OWWidget):
                 controlWidth=100,
                 orientation=Qt.Horizontal,
                 tooltip="Tooltip",
-                placeholderText=tactusloaderLIB.DEFAULTPATIENTID))
+                placeholderText=str(tactusloaderLIB.DEFAULTPATIENTID)))
         form.addRow(gui.button(None, self, 'prev', self.prev),gui.button(None, self, 'next', self.next))
         form.addRow(gui.button(None, self, 'load', self.load))
 
     def prev(self):
-        self.patientId = str(int(self.patientId)-1)
-        self.load()
+        if self.patientId != self.ALLFILES:
+            self.patientId = str(int(self.patientId)-1)
+            self.load()
 
     def next(self):
-        self.patientId = str(int(self.patientId)+1)
-        self.load()
+        if self.patientId != self.ALLFILES:
+            self.patientId = str(int(self.patientId)+1)
+            self.load()
+
+    def readAllFiles(self,directory):
+        fileNames = os.listdir(directory)
+        allMails = []
+        for fileName in fileNames:
+            if re.search(r"^"+tactusloaderLIB.INFILEPREFIX,fileName):
+                table,mails = tactusloaderLIB.processFile(self.directory,fileName)
+                allMails.extend(mails)
+        largeTable = tactusloaderLIB.mails2table(allMails)
+        return(largeTable)
 
     def load(self):
-        patientFileName = tactusloaderLIB.makeFileName(self.patientId)
-        table = tactusloaderLIB.processFile(self.directory,patientFileName)
+        if self.patientId == self.ALLFILES: table = self.readAllFiles(self.directory)
+        else: 
+            patientFileName = tactusloaderLIB.makeFileName(self.patientId)
+            table,mails = tactusloaderLIB.processFile(self.directory,patientFileName)
         if len(table) > 0: 
             self.Outputs.data.send(Corpus.from_table(table.domain, table))
         else:
