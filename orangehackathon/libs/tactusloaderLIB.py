@@ -8,7 +8,7 @@ import re
 import xml.etree.ElementTree as ET
 
 DEFAULTDIRECTORY = "/home/erikt/projects/e-mental-health/usb/releases/20191217"
-DEFAULTPATIENTID = "1"
+DEFAULTPATIENTID = 1
 COUNSELORIDTAG = "./AssignedCounselor"
 MESSAGETAG = "./Messages/Message"
 SENDER = "Sender"
@@ -44,7 +44,7 @@ def corpusDomain(mails):
 
 def makeFileName(patientId):
     if patientId == "": patientId = DEFAULTPATIENTID
-    fileName = patientId
+    fileName = str(patientId)
     while (len(fileName) < MAXIDLEN): fileName = "0"+fileName
     return(INFILEPREFIX+fileName+INFILESUFFIX)
 
@@ -131,6 +131,11 @@ def getCounselorId(root):
         break
     return(counselorId)
 
+def mails2table(mails):
+    domain = corpusDomain(mails)
+    table = Table.from_list(domain,mails) # replaces "" in cells with "?"
+    return(table)
+
 def processFile(directory,patientFileName):
     if directory == "": directory = DEFAULTDIRECTORY
     try:
@@ -146,12 +151,11 @@ def processFile(directory,patientFileName):
                 root = ET.fromstring(text)
         counselorId = getCounselorId(root)
         mails = getEmailData(root,patientFileName,counselorId)
-        domain = corpusDomain(mails)
-        table = Table.from_list(domain,mails) # replaces "" in cells with "?"
-        return(table)
+        table = mails2table(mails)
+        return(table,mails)
     except:
         print("File processing error:",directory+"/"+patientFileName)
-        return([])
+        return([],[])
 
 if __name__ == "__main__":
     pass
