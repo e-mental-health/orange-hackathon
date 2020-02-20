@@ -16,6 +16,7 @@ FIELDNAMECOUNSELOR = "counselor"
 FIELDNAMETEXT = "text"
 FIELDNAMEEXTRA = "extra"
 FIELDNAMEMSGID = "msg id"
+FIELDNAMEMARKEDTEXT = "markedtext"
 LIWCFILE = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../widgets/Dicts' , 'LIWC-DO-NOT-DISTRIBUTE.txt')
 TEXTBOUNDARY = "%"
 NBROFTOKENS = "NBROFTOKENS"
@@ -26,9 +27,12 @@ TOKENID = 0
 LEMMAID = 1
 NUMBER = "number"
 SPACE = " "
-SEPARATOR = " "
+SEPARATOR = SPACE
 numberId = -1
 NBROFDECIMALS = 5
+MARKERTOKEN = "@"
+NUM = "NUM"
+EXCEPTIONLIST = ["DATE","EVE","LOC","MISC","NUM","ORG","PER","PRO"]
 
 def getFieldId(corpus,fieldName):
     fieldId = -1
@@ -37,13 +41,25 @@ def getFieldId(corpus,fieldName):
             fieldId = i
     return(fieldId)
 
+def toLower(wordList):
+    loweredList = []
+    for word in wordList:
+        if word in EXCEPTIONLIST: loweredList.append(word)
+        else: loweredList.append(word.lower())
+    return(loweredList)
+
 def prepareText(text):
     text = re.sub("</*line>", SPACE, text)
     text = re.sub(">>+", SPACE, text)
-    return word_tokenize(text)
+    return(toLower(word_tokenize(text)))
 
 def isNumber(string):
-    return string.lstrip("-").replace(".", "1").isnumeric()
+    if string == NUM: return(True)
+    try:
+        float(string)
+        return(True)
+    except ValueError:
+        return(False)
 
 def readEmpty(inFile):
     text = ""
@@ -131,26 +147,31 @@ def addFeatureToCounts(counts, feature, featureNames=None):
 
 def text2liwc(words, prefixes, featureNames, tokens):
     counts = {}
+    markedTokens = []
     for word in tokens:
+        markedTokens.append(word)
         if word in words:
             addFeatureToCounts(counts, NBROFMATCHES)
             for feature in words[word]:
                 if feature.isdigit():
                     addFeatureToCounts(counts, feature, featureNames)
+                    markedTokens[-1] += MARKERTOKEN+featureNames[feature]
         longestPrefix = findLongestPrefix(prefixes, word)
         if longestPrefix != "":
             addFeatureToCounts(counts, NBROFMATCHES)
             for feature in prefixes[longestPrefix]:
                 addFeatureToCounts(counts, feature, featureNames)
+                markedTokens[-1] += MARKERTOKEN+featureNames[feature]
         if isNumber(word):
             addFeatureToCounts(counts, NBROFMATCHES)
             addFeatureToCounts(counts, NUMBERCOUNT)
-    return(counts)
+            markedTokens[-1] += MARKERTOKEN+NUMBERCOUNT
+    return(counts,SPACE.join(markedTokens))
 
 def liwcResults(text, words, prefixes, featureNames):
     tokens = prepareText(text)
-    counts = text2liwc(words, prefixes, featureNames, tokens)
-    return(counts)
+    counts,markedText = text2liwc(words, prefixes, featureNames, tokens)
+    return(counts,markedText)
 
 def getColumnNames(thisList,featureNames):
     columnNames = []
@@ -191,20 +212,20 @@ def sortKeys(keys):
     sortedKeys = sorted(splitKeys,key=itemgetter(0,1))
     return([keyCombine(k[0],k[1]) for k in sortedKeys])
 
-def dataCombine(corpus,liwcResultList,featureNames):
+def dataCombine(corpus,liwcResultList,featureNames,markedTexts):
     liwcResultTable,columnNames = list2table(liwcResultList,featureNames)
     fieldIdFile = getFieldId(corpus, FIELDNAMEFILE)
     fieldIdCounselor = getFieldId(corpus, FIELDNAMECOUNSELOR)
     domain = [ContinuousVariable(name=FIELDNAMEMSGID)]+list(corpus.domain.variables)
     for columnName in sortKeys(columnNames):
         domain.append(ContinuousVariable(name=columnName,number_of_decimals=NBROFDECIMALS))
-    metas = [StringVariable(name=FIELDNAMEFILE),StringVariable(name=FIELDNAMECOUNSELOR)]
+    metas = [StringVariable(name=FIELDNAMEFILE),StringVariable(name=FIELDNAMECOUNSELOR),StringVariable(name=FIELDNAMEMARKEDTEXT)]
     dataOut = []
     metasOut = []
     for i in range(0,len(corpus)):
         fileName = corpus.metas[i][fieldIdFile]
         counselorId = corpus.metas[i][fieldIdCounselor]
-        metasOut.append([fileName,counselorId])
+        metasOut.append([fileName,counselorId,markedTexts[i]])
         row = [i+1]+list(corpus[i].values())
         for columnName in sortKeys(columnNames):
             if (not re.match("^\d+\s",columnName) and columnName != NUMBERCOUNT) or int(liwcResultTable[i][NBROFMATCHES]) == 0:
@@ -221,8 +242,11 @@ def processCorpus(corpus):
     fieldIdExtra = getFieldId(corpus, FIELDNAMEEXTRA)
     featureNames, words, prefixes = readLiwc(LIWCFILE)
     liwcResultList = []
+    markedTexts = []
     for msgId in range(0, len(corpus.metas)):
         text = str(corpus.metas[msgId][fieldIdText])
-        liwcResultList.append(liwcResults(text, words, prefixes, featureNames))
-    liwcResultTable = dataCombine(corpus,liwcResultList,featureNames)
+        counts,markedText = liwcResults(text, words, prefixes, featureNames)
+        liwcResultList.append(counts)
+        markedTexts.append(markedText)
+    liwcResultTable = dataCombine(corpus,liwcResultList,featureNames,markedTexts)
     return(liwcResultTable)
