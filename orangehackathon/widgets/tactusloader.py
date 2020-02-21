@@ -56,8 +56,8 @@ class TactusLoader(OWWidget):
                 orientation=Qt.Horizontal,
                 tooltip="Tooltip",
                 placeholderText=str(tactusloaderLIB.DEFAULTPATIENTID)))
-        form.addRow(gui.button(None, self, 'prev', self.prev),gui.button(None, self, 'next', self.next))
         form.addRow(gui.button(None, self, 'load', self.load))
+        form.addRow(gui.button(None, self, 'prev', self.prev),gui.button(None, self, 'next', self.next))
 
     def prev(self):
         if self.patientId != self.ALLFILES:
