@@ -16,6 +16,7 @@ import orangehackathon.libs.tactusloaderLIB as tactusloaderLIB
 
 class TactusLoader(OWWidget):
     ALLFILES = "*"
+    HELPTEXT = "use patient id * for reading all AdB* files"
     name = "Tactus Mail Loader"
     description = "Reads Tactus mails from directory"
     icon = "icons/mail.svg"
@@ -28,7 +29,7 @@ class TactusLoader(OWWidget):
         super().__init__()
         self.progress = gui.ProgressBar(self, 10)
         self.label = gui.widgetLabel(self.controlArea)
-        self.label.setText("use patient id * for reading all AdB* files")
+        self.label.setText(self.HELPTEXT)
         self.drawWindow()
 
     class Outputs:
@@ -85,6 +86,7 @@ class TactusLoader(OWWidget):
             patientFileName = tactusloaderLIB.makeFileName(self.patientId)
             table,mails = tactusloaderLIB.processFile(self.directory,patientFileName)
         if len(table) > 0: 
+            self.label.setText(self.HELPTEXT)
             self.Outputs.data.send(Corpus.from_table(table.domain, table))
         else:
             self.label.setText("Warning: non-existent data file\n"+self.directory+"/"+patientFileName+"\nor empty corpus")
