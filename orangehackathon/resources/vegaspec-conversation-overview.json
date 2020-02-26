@@ -1,0 +1,45 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
+    "width": 700,
+    "height": 750,
+    "data": {
+        "format": {
+            "type": "csv"
+        }
+    },
+    "transform": [
+        {
+            "calculate": "datum.counselor + ' ' + datum.file",
+            "as": "file_counselor"
+        }
+    ],
+    "mark": {
+        "type": "point",
+        "tooltip": true
+    },
+    "encoding": {
+        "x": {
+            "field": "date",
+            "type": "temporal"
+        },
+        "y": {
+            "field": "file_counselor",
+            "type": "nominal",
+            "axis": {
+                "grid": true
+            }
+        },
+        "color": {
+            "field": "counselor",
+            "type": "nominal"
+        },
+        "size": {
+            "field": "Number of matches",
+            "type": "quantitative"
+        },
+        "shape": {
+            "field": "from",
+            "type": "nominal"
+        }
+    }
+}
