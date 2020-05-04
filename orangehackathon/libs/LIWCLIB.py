@@ -236,17 +236,19 @@ def dataCombine(corpus,liwcResultList,featureNames,markedTexts):
     table = Table.from_numpy(Domain(domain,metas=metas),np.array(dataOut),metas=np.array(metasOut))
     return(table) 
 
-def processCorpus(corpus):
+def processCorpus(corpus,progress=None):
     if len(corpus) == 0: return(corpus)
     fieldIdText = getFieldId(corpus, FIELDNAMETEXT)
     fieldIdExtra = getFieldId(corpus, FIELDNAMEEXTRA)
     featureNames, words, prefixes = readLiwc(LIWCFILE)
     liwcResultList = []
     markedTexts = []
+    if progress != None: progress.iter = len(corpus.metas)
     for msgId in range(0, len(corpus.metas)):
         text = str(corpus.metas[msgId][fieldIdText])
         counts,markedText = liwcResults(text, words, prefixes, featureNames)
         liwcResultList.append(counts)
         markedTexts.append(markedText)
+        if progress != None: progress.advance()
     liwcResultTable = dataCombine(corpus,liwcResultList,featureNames,markedTexts)
     return(liwcResultTable)
