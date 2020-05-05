@@ -36,11 +36,11 @@ QUESTIONMARK = "?"
 def corpusDomain(mails):
     return(Domain([TimeVariable.make(FIELDDATE),                              \
                    DiscreteVariable.make(FIELDFROM,set([x[1] for x in mails])),  \
-                   DiscreteVariable.make(FIELDTO,  set([x[2] for x in mails]))], \
-            metas=[StringVariable.make(FIELDFILE),                            \
+                   DiscreteVariable.make(FIELDTO,set([x[2] for x in mails]))], \
+            metas=[StringVariable.make(FIELDTEXT),                            \
+                   StringVariable.make(FIELDFILE),                            \
                    StringVariable.make(FIELDCOUNSELOR),                       \
-                   StringVariable.make(FIELDSUBJECT),                         \
-                   StringVariable.make(FIELDTEXT)]))
+                   StringVariable.make(FIELDSUBJECT)]))
 
 def makeFileName(patientId):
     if patientId == "": patientId = DEFAULTPATIENTID
@@ -116,8 +116,8 @@ def getEmailData(root,patientFileName,counselorId):
             elif child.tag == DATESENT: date = cleanupText(child.text)
             elif child.tag == SUBJECT: subject = cleanupText(child.text)
             elif child.tag == BODY: body = cleanupText(child.text)
-        if sender == CLIENT: clientMails.append([date,sender,recipient,patientFileName,counselorId,subject,body])
-        else: counselorMails.append([date,sender,recipient,patientFileName,counselorId,subject,body])
+        if sender == CLIENT: clientMails.append([date,sender,recipient,body,patientFileName,counselorId,subject])
+        else: counselorMails.append([date,sender,recipient,body,patientFileName,counselorId,subject])
     clientMails = cleanupMails(clientMails,counselorMails)
     counselorMails = cleanupMails(counselorMails,clientMails)
     allMails = clientMails
