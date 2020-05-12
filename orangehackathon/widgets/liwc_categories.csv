@@ -1,0 +1,78 @@
+id,parent,label,color
+function,root,Function words,#3d997d
+pronoun,function,Pronouns,#4dbf9d
+ppron,pronoun,Personal pronouns,#269977
+i,ppron,1st person singular,#30bf94
+we,ppron,1st person plural,#3d9999
+you,ppron,2nd person singular,#4dbfbf
+shehe,ppron,3rd person singular,#269999
+they,ppron,3rd person plural,#30bfbf
+ipron,pronoun,Impersonal pronouns,#3d7d99
+article,function,Articles,#4d9dbf
+prep,function,Prepositions,#267799
+auxverb,function,Auxiliary verbs,#3094bf
+adverb,function,Common Adverbs,#3d6299
+conj,function,Conjunctions,#4d7abf
+negate,function,Negations,#265499
+othergrammar,root,Other Grammar,#3069bf
+verb,othergrammar,Common verbs,#3d4699
+adj,othergrammar,Common adjectives,#4d58bf
+compare,othergrammar,Comparisons,#263299
+interrog,othergrammar,Interrogatives,#303ebf
+number,othergrammar,Numbers,#503d99
+quant,othergrammar,Quantifiers,#634dbf
+psychproc,root,Psychological processes,#993d3d
+affect,psychproc,Affective processes,#bf4d4d
+posemo,affect,Positive emotion,#992626
+negemo,affect,Negative emotion,#bf3030
+anx,negemo,Anxiety,#99593d
+anger,negemo,Anger,#bf6f4d
+sad,negemo,Sadness,#994926
+social,psychproc,Social processes,#993d74
+family,social,Family,#bf4d91
+friend,social,Friends,#99266b
+female,social,Female references,#bf3086
+male,social,Male references,#993d59
+cogproc,psychproc,Coginitive processes,#a84dbf
+insight,cogproc,Insight,#822699
+cause,cogproc,Causation,#a330bf
+discrep,cogproc,Discrepancy,#993d90
+tentat,cogproc,Tentative,#bf4db4
+certain,cogproc,Certainty,#99268e
+differ,cogproc,Differentiation,#bf30b1
+percept,psychproc,Perceptual processes,#3d9962
+see,percept,See,#4dbf7a
+hear,percept,Hear,#269954
+feel,percept,Feel,#30bf69
+bio,psychproc,Biological processes,#bf5b30
+body,bio,Body,#99743d
+health,bio,Health,#bf914d
+sexual,bio,Sexual,#996b26
+ingest,bio,Ingestion,#bf8630
+drives,psychproc,Drives,#609926
+affiliation,drives,Affiliation,#78bf30
+achieve,drives,Achievement,#50993d
+power,drives,Power,#63bf4d
+reward,drives,Reward,#3d9926
+risk,drives,Risk,#4dbf30
+TimeOrient,psychproc,Time orientations,#829926
+focuspast,TimeOrient,Past focus,#a3bf30
+focuspresent,TimeOrient,Present focus,#6b993d
+focusfuture,TimeOrient,Future focus,#86bf4d
+relativ,psychproc,Relativity,#3d9946
+motion,relativ,Motion,#4dbf58
+space,relativ,Space,#269932
+time,relativ,Time,#30bf3e
+persconc,psychproc,Personal concerns,#3d2699
+work,persconc,Work,#4c30bf
+leisure,persconc,Leisure,#6b3d99
+home,persconc,Home,#864dbf
+money,persconc,Money,#602699
+relig,persconc,Religion,#7830bf
+death,persconc,Death,#873d99
+informal,psychproc,Informal language,#99903d
+swear,informal,Swear words,#bfb44d
+netspeak,informal,Netspeak,#998e26
+assent,informal,Assent,#bfb130
+nonflu,informal,Nonfluencies,#87993d
+filler,informal,Fillers,#a8bf4d

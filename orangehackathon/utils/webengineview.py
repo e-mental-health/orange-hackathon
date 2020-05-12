@@ -36,3 +36,22 @@ class WebEngineView(QtWebEngineWidgets.QWebEngineView):
         output = StringIO()
         chart.save(output, "html", **kwargs)
         self.setHtml(output.getvalue())
+
+    def loadCSS(self, css, name):
+        SCRIPT = """
+        (function() {
+        css = document.createElement('style');
+        css.type = 'text/css';
+        css.id = "%s";
+        document.head.appendChild(css);
+        css.innerText = `%s`;
+        })()
+        """ % (name, css)
+        script = QtWebEngineWidgets.QWebEngineScript()
+        self.page().runJavaScript(SCRIPT, QtWebEngineWidgets.QWebEngineScript.ApplicationWorld)
+        script.setName(name)
+        script.setSourceCode(SCRIPT)
+        script.setInjectionPoint(QtWebEngineWidgets.QWebEngineScript.DocumentReady)
+        script.setRunsOnSubFrames(True)
+        script.setWorldId(QtWebEngineWidgets.QWebEngineScript.ApplicationWorld)
+        self.page().scripts().insert(script)
