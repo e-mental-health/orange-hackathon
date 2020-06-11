@@ -5,7 +5,8 @@
     "data": {
         "format": {
             "type": "csv"
-        }
+        },
+        "values": ""
     },
     "transform": [
         {

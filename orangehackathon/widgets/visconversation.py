@@ -59,14 +59,12 @@ class VisConversation(OWWidget):
             self.storedTable = table
 
             # Convert Orange Table to Pandas DataFrame
-            df = table_to_frame(table)
+            df = table_to_frame(table, include_metas=True)
 
-            #values = df.to_dict()
+            # Convert Pandas DataFrame to CSV
             csv = df.to_csv()
-            print(csv)
 
             # Store data in Vega dictionary
-            self.dict['data'].pop('url')
             self.dict['data']['values'] = csv
 
             # Update (recreate) the chart
