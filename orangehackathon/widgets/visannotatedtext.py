@@ -69,7 +69,7 @@ class VisAnnotatedText(OWWidget):
             to the annotations.
         """
         split = annotatedWord.split('@')
-        
+
         # filter on selected categories
         liwc_cats = [cat for cat in split[1:] if self.tree_items[cat].checkState(0) == Qt.Checked]
 
@@ -132,7 +132,7 @@ class VisAnnotatedText(OWWidget):
 
         # Generate LIWC category colors
         s = ""
-        for index, row in self.liwc_categories.iterrows():
+        for _, row in self.liwc_categories.iterrows():
             s += f".{row['id']} {{ background-color: {row['color']}; }}\n"
         css = css.replace('/* LIWC_COLORS */', s)
 
