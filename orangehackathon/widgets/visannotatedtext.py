@@ -1,6 +1,5 @@
-import sys
 import os
-from PyQt5.QtCore import QFile, QIODevice, QTextStream, QUrl, Qt, pyqtSignal
+from PyQt5.QtCore import QIODevice, QTextStream, QUrl, Qt, pyqtSignal
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore
 from Orange.widgets.widget import OWWidget, Input
@@ -8,9 +7,6 @@ from Orange.widgets import gui
 from Orange.data import Table
 
 import pandas as pd
-import json
-
-from ..resources import resources
 
 from ..utils.pandas_compat import table_to_frame
 from ..utils.webengineview import WebEngineView
@@ -79,7 +75,7 @@ class VisAnnotatedText(OWWidget):
 
         # filter on leaf nodes
         liwc_cats = filter(lambda cat: self.tree_items[cat].childCount() == 0, liwc_cats)
-        
+
         annotations = [f'<div class="dot {cat} tooltip"><span class="tooltiptext">{self.getParentChain(cat)}</span></div>' for cat in liwc_cats]
         divs = "".join(annotations)
         return (f'<div class="nobr">{divs}<div class="tooltip"><span>{split[0]}</span>'
@@ -105,7 +101,7 @@ class VisAnnotatedText(OWWidget):
         tree.setHeaderLabels(['Category', 'Color'])
         tree.header().setStretchLastSection(False)
         tree.header().setSectionResizeMode(QHeaderView.ResizeToContents)
-        for index, row in self.liwc_categories.iterrows():
+        for _, row in self.liwc_categories.iterrows():
             parent_id = row['parent']
             parent = tree if parent_id == 'root' else self.tree_items[parent_id]
             item = QTreeWidgetItem(parent)
@@ -127,7 +123,7 @@ class VisAnnotatedText(OWWidget):
             which contains information about the colors to use.
         """
         # Load CSS template
-        qurl = QUrl.fromLocalFile(os.path.join(os.getcwd(), 
+        qurl = QUrl.fromLocalFile(os.path.join(os.getcwd(),
             "orangehackathon", "widgets", "resources", "liwc_style_template.css"))
         file = QtCore.QFile(qurl.toLocalFile())
         if not file.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text):

@@ -1,12 +1,9 @@
-import sys
-import os
-from PyQt5.QtCore import QFile, QIODevice, QTextStream, QUrl, Qt, pyqtSignal
+from PyQt5.QtCore import QFile, QIODevice, QTextStream, Qt, pyqtSignal
 from PyQt5.QtWidgets import QFormLayout
 from Orange.widgets.widget import OWWidget, Input
 from Orange.widgets import gui
 from Orange.data import Table
 
-import pandas as pd
 import altair as alt
 import json
 
@@ -55,7 +52,7 @@ class VisConversation(OWWidget):
 
     @Inputs.table
     def storeTable(self,table):
-        if table != None: 
+        if table != None:
             self.storedTable = table
 
             # Convert Orange Table to Pandas DataFrame
