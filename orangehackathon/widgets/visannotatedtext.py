@@ -52,10 +52,11 @@ class VisAnnotatedText(OWWidget):
         if self.storedTable != None: self.draw()
 
     def draw(self):
-        # Convert Orange Table to Pandas DataFrame
+        """ Generates and displays html for the provided data.
+            The table is assumed to contain only one row.
+        """
         df = table_to_frame(self.storedTable, include_metas=True)
-        print(df.columns)
-        text = "beste@adj@compare@affect@posemo@drives@achieve@power@reward PER , bedankt voor@function@prep@adj@compare@relativ@time je@function@pronoun@ppron@you@social aanmelding . ik@function@pronoun@ppron@i heb@function@auxverb@verb@focuspresent de@function@article intake bekeken@verb@focuspast en@function@conj je@function@pronoun@ppron@you@social bent@function@auxverb@verb@focuspresent een@function@article geschikte kandidaat om@function@prep@conj te@function@prep@adverb starten met@function@prep de@function@article internetbehandeling LOC . binnen@function@prep@relativ@space NUM@number count werkdagen na@function@prep@adverb@adj@compare@relativ@time dit@function@pronoun@ipron bericht@social@drives@affiliation krijg je@function@pronoun@ppron@you@social een@function@article vaste hulpverlener toegewezen@verb@quant@cogproc@tentat@focuspast@work die@function@pronoun@ipron , om@function@prep@conj te@function@prep@adverb beginnen@verb@focuspast@focuspresent@relativ@time@work , uitgebreid@verb@cogproc@insight@focuspast@relativ@space op@function@prep@relativ@space je@function@pronoun@ppron@you@social intake zal@function@auxverb@verb@cogproc@discrep@focusfuture in@function@prep@relativ@space gaan@function@pronoun@verb@focuspresent@focusfuture@relativ@motion . ik@function@pronoun@ppron@i wens@verb@affect@posemo@cogproc@discrep@drives@reward@focuspresent@focusfuture je@function@pronoun@ppron@you@social veel@function@adverb@quant@cogproc succes@affect@posemo@drives@achieve@reward@work met@function@prep de@function@article behandeling@bio@health . met@function@prep vriendelijke groet@social@drives@affiliation , PER"
+        text = df.at[0, 'markedtext']
         html = self.transformMessage(text)
         self.view.setHtml(html)
 
