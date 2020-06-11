@@ -60,17 +60,19 @@ class VisAnnotatedText(OWWidget):
         html = self.transformMessage(text)
         self.view.setHtml(html)
 
-    def getCatProp(self, cat, prop):
-        return self.liwc_categories[self.liwc_categories["id"] == cat].iloc[0][prop]
-
     def getParentChain(self, cat):
+        """ Helper function that generates the hierarchical path the specified LIWC category is in.
+        """
         parent = self.cat_dict[cat]['parent']
         if parent == "root":
             return self.cat_dict[cat]['label']
         return self.getParentChain(parent) + " > " + self.cat_dict[cat]['label']
 
-    def transformWord(self, taggedWord):
-        split = taggedWord.split('@')
+    def transformWord(self, annotatedWord):
+        """ Transforms the annotated word into html with divs having classes corresponding
+            to the annotations.
+        """
+        split = annotatedWord.split('@')
         
         # filter on selected categories
         liwc_cats = [cat for cat in split[1:] if self.tree_items[cat].checkState(0) == Qt.Checked]
@@ -83,16 +85,23 @@ class VisAnnotatedText(OWWidget):
         return (f'<div class="nobr">{divs}<div class="tooltip"><span>{split[0]}</span>'
             f'<span class="tooltiptext">{", ".join(liwc_cats)}</span></div></div>&nbsp;&nbsp;&nbsp;')
 
-    def transformMessage(self, taggedMessage):
-        taggedWords = taggedMessage.split(' ')
+    def transformMessage(self, annotatedMessage):
+        """ Transforms the liwc-annotated message to html by separating the words and processing
+            them separately. The annotated message should be formatted similar to this:
+            "bedankt voor@function@prep@adj@compare@relativ@time je@function@pronoun@ppron@you@social aanmelding ."
+        """
+        annotatedWords = annotatedMessage.split(' ')
         htmlMessage = ""
-        for taggedWord in taggedWords:
-            htmlMessage += self.transformWord(taggedWord)
+        for annotatedWord in annotatedWords:
+            htmlMessage += self.transformWord(annotatedWord)
         return f'<html>{htmlMessage}</html>'
 
     def loadLiwcCategories(self):
+        """ Loads information about the LIWC categories (labels, colors, structure) from file.
+        """
         tree = self.selectionTree
-        self.liwc_categories = pd.read_csv(os.path.join(os.getcwd(), "orangehackathon", "widgets", "liwc_categories.csv"))
+        self.liwc_categories = pd.read_csv(os.path.join(os.getcwd(),
+            "orangehackathon", "widgets", "resources", "liwc_categories.csv"))
         tree.setHeaderLabels(['Category', 'Color'])
         tree.header().setStretchLastSection(False)
         tree.header().setSectionResizeMode(QHeaderView.ResizeToContents)
@@ -114,8 +123,12 @@ class VisAnnotatedText(OWWidget):
             }
 
     def updateCSS(self):
+        """ Dynamically generates the CSS based on a template and the loaded LIWC features,
+            which contains information about the colors to use.
+        """
         # Load CSS template
-        qurl = QUrl.fromLocalFile(os.getcwd() + "/orangehackathon/widgets/test.css")
+        qurl = QUrl.fromLocalFile(os.path.join(os.getcwd(), 
+            "orangehackathon", "widgets", "resources", "liwc_style_template.css"))
         file = QtCore.QFile(qurl.toLocalFile())
         if not file.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text):
             return
@@ -126,7 +139,6 @@ class VisAnnotatedText(OWWidget):
         for index, row in self.liwc_categories.iterrows():
             s += f".{row['id']} {{ background-color: {row['color']}; }}\n"
         css = css.replace('/* LIWC_COLORS */', s)
-        print(css)
 
         # Set CSS
         self.view.loadCSS(css, "script1")
