@@ -27,7 +27,7 @@ class TactusLoader(OWWidget):
 
     def __init__(self):
         super().__init__()
-        self.progress = gui.ProgressBar(self, 10)
+        self.progress = gui.ProgressBar(self, 1)
         self.label = gui.widgetLabel(self.controlArea)
         self.label.setText(self.HELPTEXT)
         self.drawWindow()
@@ -73,7 +73,9 @@ class TactusLoader(OWWidget):
     def readAllFiles(self,directory):
         fileNames = os.listdir(directory)
         allMails = []
+        self.progress.iter = len(fileNames)
         for fileName in fileNames:
+            self.progress.advance()
             if re.search(r"^"+tactusloaderLIB.INFILEPREFIX,fileName):
                 table,mails = tactusloaderLIB.processFile(self.directory,fileName)
                 allMails.extend(mails)
@@ -81,10 +83,12 @@ class TactusLoader(OWWidget):
         return(largeTable)
 
     def load(self):
-        if self.patientId == self.ALLFILES: table = self.readAllFiles(self.directory)
+        if self.patientId == self.ALLFILES: 
+            table = self.readAllFiles(self.directory)
         else: 
             patientFileName = tactusloaderLIB.makeFileName(self.patientId)
             table,mails = tactusloaderLIB.processFile(self.directory,patientFileName)
+            self.progress.advance()
         if len(table) > 0: 
             self.label.setText(self.HELPTEXT)
             self.Outputs.data.send(Corpus.from_table(table.domain, table))

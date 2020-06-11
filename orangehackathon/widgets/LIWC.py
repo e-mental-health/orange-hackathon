@@ -18,21 +18,20 @@ class LIWC(OWWidget):
 
     def resetWidget(self):
         self.corpus = None
-        self.progress= gui.ProgressBar(self, 10)
 
     def __init__(self):
         super().__init__()
+        self.progress = gui.ProgressBar(self, 1)
         self.label = gui.widgetLabel(self.controlArea)
         self.resetWidget()
 
     @Inputs.corpus
     def inputAnalysis(self, corpus):
         self.resetWidget()
-        OWWidget.progressBarInit(self)
         self.corpus = corpus
         if self.corpus is None:
             self.label.setText("No corpus available")
             self.Outputs.table.send([])
         else:
-            self.liwcResultTable = LIWCLIB.processCorpus(self.corpus)
+            self.liwcResultTable = LIWCLIB.processCorpus(self.corpus,progress=self.progress)
             self.Outputs.table.send(self.liwcResultTable)

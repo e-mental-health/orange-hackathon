@@ -5,7 +5,7 @@
 
 The Orange Hackathon was a software development event in which researchers and students expanded the platform system [Orange](http://orange.biolab.si) with modules which can automatically analyze online therapeutic therapies
 
-The hackathon was a part of the project [What Works When for Whom](https://www.esciencecenter.nl/project/what-works-when-for-whom) in which three partners collaborate: [Tactus](tactus.nl), [Psychology, Health and Technology](www.utwente.nl/en/bms/pht/) of the University of Twente and the [Netherlands eScience Center](esciencecenter.nl).
+The hackathon was a part of the project [What Works When for Whom](https://www.esciencecenter.nl/project/what-works-when-for-whom) in which three partners collaborate: [Tactus](https://tactus.nl), [Psychology, Health and Technology](www.utwente.nl/en/bms/pht/) of the University of Twente and the [Netherlands eScience Center](esciencecenter.nl).
 
 The contact person for this hackathon is Erik Tjong Kim Sang e.tjongkimsang@esciencecenter.nl
 
@@ -68,3 +68,16 @@ Note that we also use the [text module](https://github.com/biolab/orange3-text) 
 ### Medium pipeline
 
 <img src="https://raw.githubusercontent.com/e-mental-health/orange-hackathon/master/images/orange-medium.jpg" width="100%">
+
+### Tactus pipeline
+
+<img src="https://raw.githubusercontent.com/e-mental-health/orange-hackathon/master/images/tactus-pipeline.jpg" width="100%">
+
+The Tactus pipeline is used for filtering and visualizing the therapy mails from the organization [Tactus](https://tactus.nl) in the project [What Works When for Whom](https://www.esciencecenter.nl/project/what-works-when-for-whom). It contains six modules:
+
+1. Tactus Mail Loader: read all mails of one therapy session (xml data)
+2. Sort Emails: sort mails chronologically
+3. Mark duplicates: mark all phrases of 20 tokens or longer that appeared in an earlier mail
+4. Remove Marked Text: remove all marked text from the mails
+5. LIWC: perform LIWC analysis of the mail text: count relevant tokens
+6. Line Plot: make a graph of the counted tokens

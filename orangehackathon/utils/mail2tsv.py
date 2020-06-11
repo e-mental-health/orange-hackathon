@@ -86,7 +86,7 @@ def parse_enron_mail_old(inFileName):
                 inHeading = False
 
     if inFileName != "": inFile.close()
-    return dateField, fromField, toField, inFileName, subjectField, textField, EMPTYSTRING
+    return dateField, fromField, toField, textField, inFileName, subjectField, EMPTYSTRING
 
 
 def mail2tsv(inFileName, csvwriter, counter, baseFile=None):

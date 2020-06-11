@@ -31,9 +31,9 @@ class EnronLoader(OWWidget):
         return(Domain([TimeVariable.make("date"),                                 \
                        DiscreteVariable.make("from",set([x[1] for x in mails])),  \
                        DiscreteVariable.make("to",  set([x[2] for x in mails]))], \
-                metas=[StringVariable.make("file"),                               \
+                metas=[StringVariable.make("text"),                               \
+                       StringVariable.make("file"),                               \
                        StringVariable.make("subject"),                            \
-                       StringVariable.make("text"),                               \
                        StringVariable.make("extra")]))
 
     def drawWindow(self):
