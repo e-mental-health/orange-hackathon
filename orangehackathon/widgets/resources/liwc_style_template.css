@@ -1,0 +1,51 @@
+html {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: large;
+}
+
+.dot {
+  background-color: gainsboro;
+}
+
+/* LIWC_COLORS */
+
+.dot {
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+  border-color: red;
+  display: inline-block;
+}
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: lightcyan;
+  color: black;
+  text-align: center;
+  padding: 4px 0;
+  border-radius: 4px;
+
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  top: 120%;
+  left: 0%;
+}
+
+.nobr {
+  display: inline-block;
+  white-space: pre-wrap;
+}
