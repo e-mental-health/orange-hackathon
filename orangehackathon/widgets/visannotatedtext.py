@@ -15,7 +15,7 @@ from PyQt5.QtGui import QColor
 class VisAnnotatedText(OWWidget):
     name = "Annotated text visualization"
     description = "Shows annotated texts in a viewer"
-    icon = "icons/lineplot.svg"
+    icon = "icons/vistext.svg"
     want_main_area = False
     storedTable = None
 
