@@ -6,6 +6,7 @@ from Orange.data import Table
 
 import altair as alt
 import json
+import sys
 
 from ..resources import resources
 
@@ -15,7 +16,7 @@ from ..utils.webengineview import WebEngineView
 class VisConversation(OWWidget):
     name = "Conversation visualization"
     description = "Visualization of conversations on a timeline"
-    icon = "icons/lineplot.svg"
+    icon = "icons/visconv.svg"
     want_main_area = False
     DAAP = "daap"
     COLORPREFIX = "C"
@@ -33,6 +34,7 @@ class VisConversation(OWWidget):
         stream = QFile(':vegaspec-conversation-overview.json')
         stream.open(QIODevice.ReadOnly)
         if not stream.exists():
+            print('Vega spec not found',file=sys.stderr)
             raise Exception('Vega spec not found')
         text = QTextStream(stream).readAll()
         stream.close()
@@ -49,6 +51,7 @@ class VisConversation(OWWidget):
         self.view.updateChart(self.chart)
 
         gui.widgetBox(self.controlArea, True, orientation=self.form)
+        print("end of init",file=sys.stderr)
 
     @Inputs.table
     def storeTable(self,table):
