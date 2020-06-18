@@ -16,20 +16,22 @@ import orangehackathon.libs.tactusloaderLIB as tactusloaderLIB
 
 class TactusLoader(OWWidget):
     ALLFILES = "*"
+    ALLFILESPYTHON = ".*"
     HELPTEXT = "use patient id * for reading all AdB* files"
+    DEFAULTFILEPATTERN = 1
     name = "Tactus Mail Loader"
     description = "Reads Tactus mails from directory"
     icon = "icons/mail.svg"
     category = "Hackathon"
     directory = ""
-    patientId = tactusloaderLIB.DEFAULTPATIENTID
+    filePattern = DEFAULTFILEPATTERN
     directory = tactusloaderLIB.DEFAULTDIRECTORY
 
     def __init__(self):
         super().__init__()
         self.progress = gui.ProgressBar(self, 1)
         self.label = gui.widgetLabel(self.controlArea)
-        self.label.setText(self.HELPTEXT)
+        # self.label.setText(self.HELPTEXT)
         self.drawWindow()
 
     class Outputs:
@@ -52,45 +54,51 @@ class TactusLoader(OWWidget):
         form.addRow(
             "patient id:",
             gui.lineEdit(
-                None, self, "patientId",
+                None, self, "filePattern",
                 controlWidth=100,
                 orientation=Qt.Horizontal,
                 tooltip="Tooltip",
-                placeholderText=str(tactusloaderLIB.DEFAULTPATIENTID)))
+                placeholderText=str(self.DEFAULTFILEPATTERN)))
         form.addRow(gui.button(None, self, 'load', self.load))
         form.addRow(gui.button(None, self, 'prev', self.prev),gui.button(None, self, 'next', self.next))
 
     def prev(self):
-        if self.patientId != self.ALLFILES:
-            self.patientId = str(int(self.patientId)-1)
+        if re.search("^\d+$",str(self.filePattern)):
+            self.filePattern = str(int(self.filePattern)-1)
             self.load()
 
     def next(self):
-        if self.patientId != self.ALLFILES:
-            self.patientId = str(int(self.patientId)+1)
+        if re.search("^\d+$",str(self.filePattern)):
+            self.filePattern = str(int(self.filePattern)+1)
             self.load()
 
-    def readAllFiles(self,directory):
-        fileNames = os.listdir(directory)
+    def readFiles(self,directory,filePattern):
         allMails = []
+        fileCounter = 0
+        fileNames = sorted(os.listdir(directory))
         self.progress.iter = len(fileNames)
+        if filePattern == self.ALLFILES: filePattern = self.ALLFILESPYTHON
         for fileName in fileNames:
             self.progress.advance()
-            if re.search(r"^"+tactusloaderLIB.INFILEPREFIX,fileName):
+            if re.search(r"^"+tactusloaderLIB.INFILEPREFIX,fileName) and \
+               re.search(filePattern,fileName):
                 table,mails = tactusloaderLIB.processFile(self.directory,fileName)
                 allMails.extend(mails)
+                fileCounter += 1
         largeTable = tactusloaderLIB.mails2table(allMails)
-        return(largeTable)
+        return(largeTable,fileCounter)
 
     def load(self):
-        if self.patientId == self.ALLFILES: 
-            table = self.readAllFiles(self.directory)
-        else: 
-            patientFileName = tactusloaderLIB.makeFileName(self.patientId)
+        self.label.setText("")
+        if re.search("^\d+$",str(self.filePattern)):
+            patientFileName = tactusloaderLIB.makeFileName(self.filePattern)
             table,mails = tactusloaderLIB.processFile(self.directory,patientFileName)
             self.progress.advance()
+            self.label.setText("read 1 file")
+        else: 
+            table,fileCounter = self.readFiles(self.directory,self.filePattern)
+            self.label.setText("read "+str(fileCounter)+" files")
         if len(table) > 0: 
-            self.label.setText(self.HELPTEXT)
             self.Outputs.data.send(Corpus.from_table(table.domain, table))
         else:
             self.label.setText("Warning: non-existent data file\n"+self.directory+"/"+patientFileName+"\nor empty corpus")
