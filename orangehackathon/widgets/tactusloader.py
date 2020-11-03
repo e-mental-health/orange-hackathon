@@ -22,7 +22,6 @@ class TactusLoader(OWWidget):
     name = "Tactus Mail Loader"
     description = "Reads Tactus mails from directory"
     icon = "icons/mail.svg"
-    category = "Hackathon"
     directory = ""
     filePattern = DEFAULTFILEPATTERN
     directory = tactusloaderLIB.DEFAULTDIRECTORY

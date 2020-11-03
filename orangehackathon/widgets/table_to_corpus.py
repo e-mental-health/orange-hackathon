@@ -7,7 +7,6 @@ class TableToCorpus(OWWidget):
     name = "Table -> Corpus"
     description = "Convert Table to Corpus"
     icon = "icons/MarkDuplicates.svg"
-    category = "Hackathon"
 
     class Inputs:
         table = Input("Table", Table)

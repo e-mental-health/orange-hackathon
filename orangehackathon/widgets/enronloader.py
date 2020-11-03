@@ -20,7 +20,6 @@ class EnronLoader(OWWidget):
     name = "Enron mail loader"
     description = "Reads Enron mails from directory"
     icon = "icons/e.svg"
-    category = "Hackathon"
     directory = Setting(DEFAULTDIRECTORY)
     _glob = Setting('symes-k/**/*.') # all files with names ending in . (*.) in all subdirectories (**)
 

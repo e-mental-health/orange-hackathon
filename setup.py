@@ -11,7 +11,7 @@ setup(name="orangehackathon",
       packages=find_packages(),
       package_data={"orangehackathon": ["icons/*.svg"]},
       classifiers=["Example :: Invalid"],
-      # Declare orangedemo package to contain widgets for the "Hackathon" category
-      entry_points={"orange.widgets": "Hackathon = orangehackathon.widgets"},
+      # Declare orangedemo package to contain widgets for the "UTwente" category
+      entry_points={"orange.widgets": "UTwente = orangehackathon.widgets"},
       install_requires=INSTALL_REQUIRES,
       )

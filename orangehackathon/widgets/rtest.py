@@ -13,7 +13,6 @@ class R(OWWidget):
     name = "R"
     description = "Call R"
     icon = "icons/MarkDuplicates.svg"
-    category = "Hackathon"
 
     class Inputs:
         table = Input("Table", Table)
