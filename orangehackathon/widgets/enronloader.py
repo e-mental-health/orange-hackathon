@@ -60,17 +60,17 @@ class EnronLoader(OWWidget):
         form.addRow(gui.button(None, self, 'load', self.load))
 
     def load(self):
-        OWWidget.progressBarInit(self)
+        #OWWidget.progressBarInit(self)
         files = list(Path(self.directory).glob(self._glob))
         mails = []
-        self.progress.iter = len(files)
+        #self.progress.iter = len(files)
         for i, filename in enumerate(files):
             try:
                 mails.append(parse_enron_mail(filename))
             except Exception as e:
                 print(filename)
                 print(e)
-            self.progress.advance()
+            #self.progress.advance()
 
         domain = self.corpusDomain(mails)
         table = Table.from_list(domain,mails)
@@ -78,7 +78,7 @@ class EnronLoader(OWWidget):
 
     def __init__(self):
         super().__init__()
-        self.progress = gui.ProgressBar(self, 10)
+        #self.progress = gui.ProgressBar(self, 10)
         self.drawWindow()
 
 if __name__ == "__main__":
