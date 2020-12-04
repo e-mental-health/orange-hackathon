@@ -17,6 +17,7 @@ from orangehackathon.utils.mail2tsv import parse_enron_mail_old as parse_enron_m
 
 class EnronLoader(OWWidget):
     DEFAULTDIRECTORY = os.path.abspath(os.path.dirname(__file__)) + "../../../data/"
+    YESSTRING = "yes"
 
     name = "Enron mail loader"
     description = "Reads Enron mails from directory"
@@ -28,13 +29,14 @@ class EnronLoader(OWWidget):
         data = Output("Corpus", Corpus)
 
     def corpusDomain(self,mails):
-        return(Domain([TimeVariable.make("date"),                                 \
-                       DiscreteVariable.make("from",set([x[1] for x in mails])),  \
-                       DiscreteVariable.make("to",  set([x[2] for x in mails]))], \
-                metas=[StringVariable.make("text"),                               \
-                       StringVariable.make("file"),                               \
-                       StringVariable.make("subject"),                            \
-                       StringVariable.make("extra")]))
+        return(Domain([TimeVariable.make("date"),                                       \
+                       DiscreteVariable.make("from",      set([x[1] for x in mails])),  \
+                       DiscreteVariable.make("to",        set([x[2] for x in mails])),  \
+                       DiscreteVariable.make("duplicate", set([x[3] for x in mails]))], \
+                metas=[StringVariable.make("file"),                                     \
+                       StringVariable.make("subject"),                                  \
+                       StringVariable.make("extra"),                                    \
+                       StringVariable.make("text")]))
 
     def drawWindow(self):
         form = QFormLayout()
@@ -64,9 +66,14 @@ class EnronLoader(OWWidget):
         self.progressBarInit()
         files = list(Path(self.directory).glob(self._glob))
         mails = []
+        seen = {}
         for i, filename in enumerate(files):
             try:
-                mails.append(parse_enron_mail(filename))
+                mails.append(list(parse_enron_mail(filename)))
+                key = "#".join([mails[-1][0],mails[-1][7]])
+                if key in seen: 
+                    mails[-1][3] = self.YESSTRING
+                seen[key] = True
             except Exception as e:
                 print(filename)
                 print(e)
