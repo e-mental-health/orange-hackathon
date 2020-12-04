@@ -167,7 +167,7 @@ class LinePlot(OWWidget):
                 color = colorNames[lastDataValue]
             if len(dataX) > 1: ax.plot(dataX,dataY,color=color,label=lastDataValue)
             else: ax.scatter(dataX,dataY,color=color,label=lastDataValue)
-        title = "file: "+self.fileName+"; x-axis: \""+columnNames[self.xColumn]+"\""+"; y-axis: \""+columnNames[self.yColumn]+"\""
+        title = "x-axis: \""+columnNames[self.xColumn]+"\""+"; y-axis: \""+columnNames[self.yColumn]+"\""
         if self.coloredColumn >= 0 and self.coloredColumn < len(columnNames):
             title += "; color: \""+columnNames[self.coloredColumn]+"\""
             handlesUnique,labelsUnique = self.simplifyLegend(ax)
@@ -209,7 +209,7 @@ class LinePlot(OWWidget):
                         dataY.append(newY)
                 if len(dataX) > 1: ax.plot(dataX,dataY,color=colorNames[columnValue],label=columnValue)
                 elif len(dataX) > 0: ax.scatter(dataX,dataY,color=colorNames[columnValue],label=columnValue)
-        title = "file: "+self.fileName+"; x-axis: \""+columnNames[self.xColumn]+"\""+"; y-axis: \""+columnNames[self.yColumn]+"\""
+        title = "x-axis: \""+columnNames[self.xColumn]+"\""+"; y-axis: \""+columnNames[self.yColumn]+"\""
         if self.coloredColumn >= 0 and self.coloredColumn < len(columnNames):
             title += "; color: \""+columnNames[self.coloredColumn]+"\""
             handlesUnique,labelsUnique = self.simplifyLegend(ax)
