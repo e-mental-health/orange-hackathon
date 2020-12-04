@@ -26,6 +26,7 @@ IGNOREFIELD = "ignore"
 METAFIELD = "meta"
 USEFIELD = "use=True"
 EMPTYSTRING = ""
+NOSTRING = "no"
 DELIMITER = "\t"
 DATEFORMAT1 = "%a, %d %b %Y %H:%M:%S %z"
 DATEFORMAT2 = "%Y-%m-%d %H:%M:%S"
@@ -50,12 +51,18 @@ def parse_enron_mail_old(inFileName):
     else:
         inFile = open(inFileName, "r")
     inHeading = True
+    inIncludedMail = False
     lastHeading = ""
     fromField, toField, subjectField, dateField, textField = "", "", "", "", ""
     for line in inFile:
         line = cleanUpWhiteSpace(line)
         if not inHeading:
-            textField += "<line>" + line + "</line> "
+            if re.search("^\s*\S+\s+\S+\s*@",line) or \
+               re.search("^(To|From):\s",line) or \
+               re.search("-\s*Forwarded\s+by",line): 
+                inIncludedMail = True
+            if not inIncludedMail:
+                textField += "<line>" + line + "</line> "
         else:
             match = re.search(r"^(From|To|Date|Subject):\s*(.*)$", line)
             if match: key, value = match.group(1), match.group(2)
@@ -86,7 +93,7 @@ def parse_enron_mail_old(inFileName):
                 inHeading = False
 
     if inFileName != "": inFile.close()
-    return dateField, fromField, toField, textField, inFileName, subjectField, EMPTYSTRING
+    return dateField, fromField, toField, NOSTRING, inFileName, subjectField, EMPTYSTRING, textField
 
 
 def mail2tsv(inFileName, csvwriter, counter, baseFile=None):
