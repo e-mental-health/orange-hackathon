@@ -16,7 +16,7 @@ from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, Stri
 from orangehackathon.utils.mail2tsv import parse_enron_mail_old as parse_enron_mail
 
 class EnronLoader(OWWidget):
-    DEFAULTDIRECTORY = os.path.abspath(os.path.dirname(__file__)) + "../../../data/"
+    DEFAULTDIRECTORY = os.path.abspath(os.path.dirname(__file__)) + "../../../enron/"
     YESSTRING = "yes"
 
     name = "Enron mail loader"
