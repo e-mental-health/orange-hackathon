@@ -17,7 +17,9 @@ FIELDNAMETEXT = "text"
 FIELDNAMEEXTRA = "extra"
 FIELDNAMEMSGID = "msg id"
 FIELDNAMEMARKEDTEXT = "markedtext"
-LIWCFILE = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../widgets/Dicts' , 'LIWC-DO-NOT-DISTRIBUTE.txt')
+LIWCDIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), '../widgets/Dicts/')
+LIWCDICTIONARY1 = 'LIWC-DO-NOT-DISTRIBUTE.txt'
+LIWCDICTIONARY2 = 'LIWC-MOCKUP-ENGLISH.txt'
 TEXTBOUNDARY = "%"
 NBROFTOKENS = "NBROFTOKENS"
 NBROFMATCHES = "Number of matches"
@@ -115,16 +117,22 @@ def readWords(inFile):
                 words[word] = makeUniqueElements(words[word] + fields)
     return(words, prefixes)
 
-def readLiwc(inFileName):
+def readLiwc():
+    liwcDictionary = ""
     try:
-        inFile = open(inFileName, "r")
-    except Exception as e:
-        sys.exit(COMMAND + ": cannot read LIWC dictionary " + inFileName)
+        inFile = open(LIWCDIR+LIWCDICTIONARY1, "r")
+        liwcDictionary = LIWCDICTIONARY1
+    except:
+        try:
+            inFile = open(LIWCDIR+LIWCDICTIONARY2, "r")
+            liwcDictionary = LIWCDICTIONARY2
+        except Exception as e:
+            sys.exit(COMMAND + ": cannot read LIWC dictionary ")
     readEmpty(inFile)
     featureNames = readFeatures(inFile)
     words, prefixes = readWords(inFile)
     inFile.close()
-    return(featureNames, words, prefixes)
+    return(featureNames, words, prefixes, liwcDictionary)
 
 def findLongestPrefix(prefixes, word):
     while not word in prefixes and len(word) > 0:
@@ -240,7 +248,7 @@ def processCorpus(corpus,windowId=None):
     if len(corpus) == 0: return(corpus)
     fieldIdText = getFieldId(corpus, FIELDNAMETEXT)
     fieldIdExtra = getFieldId(corpus, FIELDNAMEEXTRA)
-    featureNames, words, prefixes = readLiwc(LIWCFILE)
+    featureNames, words, prefixes, liwcDictionary = readLiwc()
     liwcResultList = []
     markedTexts = []
     # if progress != None: progress.iter = len(corpus.metas)
@@ -251,4 +259,4 @@ def processCorpus(corpus,windowId=None):
         markedTexts.append(markedText)
         if windowId != None: windowId.progressBarSet(100*(msgId+1)/len(corpus.metas))
     liwcResultTable = dataCombine(corpus,liwcResultList,featureNames,markedTexts)
-    return(liwcResultTable)
+    return(liwcResultTable, liwcDictionary)

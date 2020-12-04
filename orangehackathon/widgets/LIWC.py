@@ -33,6 +33,7 @@ class LIWC(OWWidget):
             self.Outputs.table.send([])
         else:
             self.progressBarInit()
-            self.liwcResultTable = LIWCLIB.processCorpus(self.corpus,windowId=self)
+            self.liwcResultTable, liwcDictionary = LIWCLIB.processCorpus(self.corpus,windowId=self)
             self.progressBarFinished()
+            self.label.setText("using dictionary "+liwcDictionary)
             self.Outputs.table.send(self.liwcResultTable)
