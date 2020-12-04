@@ -115,10 +115,9 @@ def addMetaDataColumn(corpus,columnData,columnDomain):
     newCorpus = Corpus.from_table(newDomain,newTable)
     return(newCorpus)
 
-def processCorpus(corpus,progress=None):
+def processCorpus(corpus,windowId=None):
     phraseRefs = {}
     coordinatesList = []
-    if progress != None: progress.iter = len(corpus)
     for msgId in range(0,len(corpus)):
         dateFieldValue = getFieldValue(corpus,FIELDNAMEDATE,msgId)
         textFieldValue = getFieldValue(corpus,FIELDNAMETEXT,msgId)
@@ -128,6 +127,6 @@ def processCorpus(corpus,progress=None):
         coordinatesList.append(str(duplicateRefStartEnds))
         markedText = markDuplicates(text,duplicateRefStartEnds)
         setFieldValue(corpus,FIELDNAMETEXT,msgId,markedText)
-        if progress != None: progress.advance()
+        if windowId != None: windowId.progressBarSet(100*(msgId+1)/len(corpus))
     if len(corpus) > 0: corpus = addMetaDataColumn(corpus,coordinatesList,COLUMNDOMAIN)
     return(corpus)

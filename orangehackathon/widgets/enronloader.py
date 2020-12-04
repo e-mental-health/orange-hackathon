@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import os
 import pandas as pd
 from Orange.widgets.widget import OWWidget, Output
 from Orange.widgets import gui
@@ -15,13 +16,13 @@ from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, Stri
 from orangehackathon.utils.mail2tsv import parse_enron_mail_old as parse_enron_mail
 
 class EnronLoader(OWWidget):
-    DEFAULTDIRECTORY = "/home/erikt/projects/e-mental-health/enron/data"
+    DEFAULTDIRECTORY = os.path.abspath(os.path.dirname(__file__)) + "../../../data/"
 
     name = "Enron mail loader"
     description = "Reads Enron mails from directory"
     icon = "icons/e.svg"
     directory = Setting(DEFAULTDIRECTORY)
-    _glob = Setting('symes-k/**/*.') # all files with names ending in . (*.) in all subdirectories (**)
+    _glob = Setting('symes-k/*/*.') # all files with names ending in . (*.) in all subdirectories (*)
 
     class Outputs:
         data = Output("Corpus", Corpus)
@@ -60,25 +61,24 @@ class EnronLoader(OWWidget):
         form.addRow(gui.button(None, self, 'load', self.load))
 
     def load(self):
-        #OWWidget.progressBarInit(self)
+        self.progressBarInit()
         files = list(Path(self.directory).glob(self._glob))
         mails = []
-        #self.progress.iter = len(files)
         for i, filename in enumerate(files):
             try:
                 mails.append(parse_enron_mail(filename))
             except Exception as e:
                 print(filename)
                 print(e)
-            #self.progress.advance()
+            self.progressBarSet(100*(i+1)/len(files))
 
         domain = self.corpusDomain(mails)
         table = Table.from_list(domain,mails)
         self.Outputs.data.send(Corpus.from_table(table.domain, table))
+        self.progressBarFinished()
 
     def __init__(self):
         super().__init__()
-        #self.progress = gui.ProgressBar(self, 10)
         self.drawWindow()
 
 if __name__ == "__main__":

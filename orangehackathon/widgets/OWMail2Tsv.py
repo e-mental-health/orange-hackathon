@@ -42,7 +42,6 @@ class MailTsv(OWWidget):
     enable_filter = Setting(True)
     filter_directories = "all_documents/, inbox/"
     valid_path = False  # flag to keep track if valid path is specified by user
-    progress = None  # progress widget
 
     class Outputs:
         out_channel = Output("Corpus out", Corpus)
@@ -193,8 +192,6 @@ class MailTsv(OWWidget):
         """ convert the mail files to tsv using the mail2tsv script in the utils folder """
         files = []
         self.statusLabel.setText("Loading file names...")
-        self.progress = gui.ProgressBar(self, 100)
-        self.progress.advance(0)
 
         # get all sub-directories with files
         walk = os.walk(self.input_directory)
@@ -206,7 +203,7 @@ class MailTsv(OWWidget):
         for folder in walk:
             new_files = map(lambda x: os.path.join(folder[0], x), folder[2])
             files.extend(new_files)
-        self.progress.iter = len(files)
+        self.progressBarInit()
 
         # convert files
         out_path = os.path.join(self.output_directory, self.output_file)
@@ -218,7 +215,7 @@ class MailTsv(OWWidget):
                 # print("file is :", file)
                 mail2tsv(file, csvwriter, index, self.input_directory)
                 index += 1
-                self.progress.advance()
+                self.progressBarSet(100*index/len(files))
                 num_files = len(files)
                 self.statusLabel.setText(f"Processing file {index}/{num_files}")
             except Exception as e:
@@ -234,8 +231,7 @@ class MailTsv(OWWidget):
         if errors:
             msg += f" with {errors} error(s), please check terminal for details"
         self.statusLabel.setText(msg)
-        self.progress.advance()
-        self.progress.finish()
+        self.progressBarFinished()
 
     def output_corpus(self):
         out_file = os.path.join(self.output_directory, self.output_file)

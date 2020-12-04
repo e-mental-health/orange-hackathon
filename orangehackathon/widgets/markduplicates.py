@@ -27,17 +27,17 @@ class MarkDuplicates(OWWidget):
     def __init__(self):
         super().__init__()
         self.label = gui.widgetLabel(self.controlArea)
-        self.progress = gui.ProgressBar(self, 1)
         self.resetWidget()
     
     @Inputs.corpus
     def inputAnalysis(self, corpus):
         self.resetWidget()
         self.corpus = corpus
-        OWWidget.progressBarInit(self)
+        self.progressBarInit()
         if self.corpus is None:
             self.label.setText("No corpus available")
         else:
             self.label.setText("Processing corpus")
-            self.corpus = markduplicatesLIB.processCorpus(corpus,progress=self.progress)
+            self.corpus = markduplicatesLIB.processCorpus(corpus,windowId=self)
+        self.progressBarFinished()
         self.Outputs.corpus.send(self.corpus)

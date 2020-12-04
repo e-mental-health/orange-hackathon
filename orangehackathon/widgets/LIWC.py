@@ -21,7 +21,6 @@ class LIWC(OWWidget):
 
     def __init__(self):
         super().__init__()
-        self.progress = gui.ProgressBar(self, 1)
         self.label = gui.widgetLabel(self.controlArea)
         self.resetWidget()
 
@@ -33,5 +32,7 @@ class LIWC(OWWidget):
             self.label.setText("No corpus available")
             self.Outputs.table.send([])
         else:
-            self.liwcResultTable = LIWCLIB.processCorpus(self.corpus,progress=self.progress)
+            self.progressBarInit()
+            self.liwcResultTable = LIWCLIB.processCorpus(self.corpus,windowId=self)
+            self.progressBarFinished()
             self.Outputs.table.send(self.liwcResultTable)
