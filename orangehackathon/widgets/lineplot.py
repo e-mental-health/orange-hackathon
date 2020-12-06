@@ -49,7 +49,7 @@ class LinePlot(OWWidget):
 
     @Inputs.table
     def storeTable(self,table):
-        if table != None: 
+        if table != None and hasattr(table, "domain"): 
             self.storedTable = table
             # 20191210 warning: reloading table may require replacing form
             # because set of features changed
@@ -72,7 +72,7 @@ class LinePlot(OWWidget):
         if self.form.rowCount() <= 1:
             form.addRow("x-axis:",gui.comboBox(None, self, "xColumn",items=columnNames,callback=self.redraw))
             form.addRow("y-axis:",gui.comboBox(None, self, "yColumn",items=columnNames,callback=self.redraw))
-            form.addRow("color:",gui.comboBox(None, self, "coloredColumn",items=columnNames+[self.FIELDNAMENONE],callback=self.redraw))
+            form.addRow("split by:",gui.comboBox(None, self, "coloredColumn",items=columnNames+[self.FIELDNAMENONE],callback=self.redraw))
             form.addRow("connect:",gui.comboBox(None, self, "connect",items=[self.MESSAGES,self.WORDS],callback=self.redraw))
             form.addRow(gui.button(None, self, 'draw', self.redraw))
 
