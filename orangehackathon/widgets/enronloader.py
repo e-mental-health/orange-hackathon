@@ -2,6 +2,7 @@ from pathlib import Path
 
 import os
 import pandas as pd
+import sys
 from Orange.widgets.widget import OWWidget, Output
 from Orange.widgets import gui
 from Orange.widgets.settings import Setting
@@ -64,7 +65,11 @@ class EnronLoader(OWWidget):
 
     def load(self):
         self.progressBarInit()
+        if not os.path.isdir(self.directory):
+            print(f"error: {self.directory} is not a valid directory!",file=sys.stderr)
         files = list(Path(self.directory).glob(self._glob))
+        if len(files) == 0:
+            print("error: no files found!",file=sys.stderr)
         mails = []
         seen = {}
         for i, filename in enumerate(files):
