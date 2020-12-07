@@ -17,14 +17,14 @@ from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, Stri
 from orangehackathon.utils.mail2tsv import parse_enron_mail_old as parse_enron_mail
 
 class EnronLoader(OWWidget):
-    DEFAULTDIRECTORY = os.path.abspath(os.path.dirname(__file__)) + "../../../enron/"
+    DEFAULTDIRECTORY = os.path.abspath(os.path.dirname(__file__)) + "/../../../enron/"
     YESSTRING = "yes"
 
     name = "Enron mail loader"
     description = "Reads Enron mails from directory"
     icon = "icons/e.svg"
     directory = Setting(DEFAULTDIRECTORY)
-    _glob = Setting('symes-k/*/*.') # all files with names ending in . (*.) in all subdirectories (*)
+    _glob = Setting('symes-k/*/*.txt') # all files with names ending in . (*.) in all subdirectories (*)
 
     class Outputs:
         data = Output("Corpus", Corpus)
