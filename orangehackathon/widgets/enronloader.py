@@ -17,14 +17,15 @@ from Orange.data import TimeVariable, ContinuousVariable, DiscreteVariable, Stri
 from orangehackathon.utils.mail2tsv import parse_enron_mail_old as parse_enron_mail
 
 class EnronLoader(OWWidget):
-    DEFAULTDIRECTORY = os.path.abspath(os.path.dirname(__file__)) + "/../../../enron/"
+    DEFAULTDIRECTORY = os.path.normpath(os.path.join(os.path.dirname(__file__),"../../../enron/"))
+    print(DEFAULTDIRECTORY)
     YESSTRING = "yes"
 
     name = "Enron mail loader"
     description = "Reads Enron mails from directory"
     icon = "icons/e.svg"
     directory = Setting(DEFAULTDIRECTORY)
-    _glob = Setting('symes-k/*/*.txt') # all files with names ending in . (*.) in all subdirectories (*)
+    _glob = Setting('symes-k/*/*.txt') # all files with names ending in .txt (*.txt) in subdirectories (*)
 
     class Outputs:
         data = Output("Corpus", Corpus)
@@ -46,18 +47,18 @@ class EnronLoader(OWWidget):
         form.setLabelAlignment(Qt.AlignLeft)
         gui.widgetBox(self.controlArea, True, orientation=form)
         form.addRow(
-            "ENRON mail directory:",
+            "directory:",
             gui.lineEdit(
                 None, self, "directory",
-                controlWidth=100,
+                controlWidth=400,
                 orientation=Qt.Horizontal,
                 tooltip="Tooltip",
                 placeholderText=""))
         form.addRow(
-            "glob pattern:",
+            "file:",
             gui.lineEdit(
                 None, self, "_glob",
-                controlWidth=100,
+                controlWidth=400,
                 orientation=Qt.Horizontal,
                 tooltip="Tooltip",
                 placeholderText=""))
