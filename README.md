@@ -1,7 +1,7 @@
 # Orange hackathon
 
 [![DOI](https://zenodo.org/badge/205136200.svg)](https://zenodo.org/badge/latestdoi/205136200)
-[![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8B%20%20%E2%97%8F%20%20%E2%97%8B-orange)](https://fair-software.eu)
+[![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F-green)](https://fair-software.eu)
 [![Research Software Directory](https://img.shields.io/badge/rsd-Research%20Software%20Directory-00a3e3.svg)](https://www.research-software.nl/software/orangehackathon)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=e-mental-health_orange-hackathon&metric=alert_status)](https://sonarcloud.io/dashboard?id=e-mental-health_orange-hackathon)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/71fd89c125d4482ab7b5d69f9c547073)](https://www.codacy.com/manual/eriktks/orange-hackathon?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=e-mental-health/orange-hackathon&amp;utm_campaign=Badge_Grade)
