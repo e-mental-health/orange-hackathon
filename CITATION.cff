@@ -1,0 +1,28 @@
+# YAML 1.2
+---
+abstract: "Orange modules for text processing in the project What Works When for Whom? "
+authors: 
+  -
+    affiliation: "Netherlands eScience Center"
+    family-names: "Tjong Kim Sang"
+    given-names: Erik
+    orcid: "https://orcid.org/0000-0002-8431-081X"
+  -
+    affiliation: "Netherlands eScience Center"
+    family-names: Kok
+    given-names: Peter
+  -
+    affiliation: "Netherlands eScience Center"
+    family-names: Klaver
+    given-names: Tom
+  -
+    affiliation: "University of Twente"
+    family-names: Brouwer
+    given-names: David
+cff-version: "1.1.0"
+date-released: 2021-03-09
+license: "Apache-2.0"
+message: "If you use this software, please cite it using these metadata."
+title: Orange Hackathon
+version: "1.0"
+...
