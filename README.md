@@ -1,5 +1,8 @@
 # Orange hackathon
 
+
+
+[![DOI](https://zenodo.org/badge/205136200.svg)](https://zenodo.org/badge/latestdoi/205136200)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/71fd89c125d4482ab7b5d69f9c547073)](https://www.codacy.com/manual/eriktks/orange-hackathon?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=e-mental-health/orange-hackathon&amp;utm_campaign=Badge_Grade)
 [![Maintainability](https://api.codeclimate.com/v1/badges/bba74d89a390004d9ed0/maintainability)](https://codeclimate.com/github/e-mental-health/orange-hackathon/maintainability)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=e-mental-health_orange-hackathon&metric=alert_status)](https://sonarcloud.io/dashboard?id=e-mental-health_orange-hackathon)
