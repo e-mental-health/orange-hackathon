@@ -1,7 +1,5 @@
 # Orange hackathon
 
-
-
 [![DOI](https://zenodo.org/badge/205136200.svg)](https://zenodo.org/badge/latestdoi/205136200)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/71fd89c125d4482ab7b5d69f9c547073)](https://www.codacy.com/manual/eriktks/orange-hackathon?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=e-mental-health/orange-hackathon&amp;utm_campaign=Badge_Grade)
 [![Maintainability](https://api.codeclimate.com/v1/badges/bba74d89a390004d9ed0/maintainability)](https://codeclimate.com/github/e-mental-health/orange-hackathon/maintainability)
@@ -17,7 +15,7 @@ The contact person for this hackathon is Erik Tjong Kim Sang e.tjongkimsang@esci
 
 ## Installation
 
-In order to use the software developed in the hackathon, you need to have [Orange](http://orange.biolab.si) running at your computer. Next you need to install the hackathon software:
+In order to use the software developed in the hackathon, you need to have [Orange](http://orange.biolab.si) running at your computer. Next you need to install the hackathon software by following the instructions below or by watching our installation videos ([video 1](https://vimeo.com/485242301), [video 2](https://vimeo.com/487662686))
 
 ### Orange installation
 
