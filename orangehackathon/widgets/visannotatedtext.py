@@ -71,7 +71,7 @@ class VisAnnotatedText(OWWidget):
         split = annotatedWord.split('@')
 
         # filter on selected categories
-        liwc_cats = [cat for cat in split[1:] if self.tree_items[cat].checkState(0) == Qt.Checked]
+        liwc_cats = [cat for cat in split[1:] if cat in self.tree_items and self.tree_items[cat].checkState(0) == Qt.Checked]
 
         # filter on leaf nodes
         liwc_cats = filter(lambda cat: self.tree_items[cat].childCount() == 0, liwc_cats)

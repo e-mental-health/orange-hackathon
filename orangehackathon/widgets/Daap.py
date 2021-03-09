@@ -47,7 +47,7 @@ class Daap(OWWidget):
         table = Output("Data", Table)
         
     def resetWidget(self):
-        self.progress= gui.ProgressBar(self, 10)
+        #self.progress= gui.ProgressBar(self, 10)
         self.label.setText("Daap Analysis")
 
     def saveFile(self):
@@ -173,7 +173,7 @@ class Daap(OWWidget):
     @Inputs.corpus
     def inputAnalysis(self, corpus):
         self.resetWidget()
-        OWWidget.progressBarInit(self)
+        #OWWidget.progressBarInit(self)
         if corpus is None:
             pass
             self.label.setText("No corpus available")
@@ -183,12 +183,12 @@ class Daap(OWWidget):
             data = []
             metas = []
             valueId = 0
-            self.progress.iter = len(corpus)
+            #self.progress.iter = len(corpus)
             fileValues = []
             fromValues = []
             dateValues = []
             for msgId in range(0,len(corpus)):
-                self.progress.advance()
+                #self.progress.advance()
                 dateValue = self.getFieldValue(corpus,self.FIELDNAMEDATE,msgId)
                 dateString = datetime.datetime.fromtimestamp(dateValue,tz=datetime.timezone.utc).strftime(self.DATEFORMAT)
                 textValue = self.getFieldValue(corpus,self.FIELDNAMETEXT,msgId)

@@ -67,12 +67,12 @@ class LinePlot(OWWidget):
 
     def drawWindow(self):
         form = self.form
-        if self.storedTable == None: columnNames = []
+        if self.storedTable == None : columnNames = []
         else: columnNames = [x.name for x in self.storedTable.domain.variables]
         if self.form.rowCount() <= 1:
             form.addRow("x-axis:",gui.comboBox(None, self, "xColumn",items=columnNames,callback=self.redraw))
             form.addRow("y-axis:",gui.comboBox(None, self, "yColumn",items=columnNames,callback=self.redraw))
-            form.addRow("color:",gui.comboBox(None, self, "coloredColumn",items=columnNames+[self.FIELDNAMENONE],callback=self.redraw))
+            form.addRow("split by:",gui.comboBox(None, self, "coloredColumn",items=columnNames+[self.FIELDNAMENONE],callback=self.redraw))
             form.addRow("connect:",gui.comboBox(None, self, "connect",items=[self.MESSAGES,self.WORDS],callback=self.redraw))
             form.addRow(gui.button(None, self, 'draw', self.redraw))
 
@@ -135,6 +135,7 @@ class LinePlot(OWWidget):
         return([x/self.SECONDSPERDAY for x in xValues])
 
     def plotWords(self):
+        if self.storedTable == None or not hasattr(self.storedTable, "domain"): return
         columnNames = [x.name for x in self.storedTable.domain.variables]
         ax = self.ax
         ax.clear()
@@ -177,6 +178,7 @@ class LinePlot(OWWidget):
         self.canvas.repaint()
 
     def plotMessages(self):
+        if self.storedTable == None or not hasattr(self.storedTable, "domain"): return
         columnNames = [x.name for x in self.storedTable.domain.variables]
         ax = self.ax
         ax.clear()
