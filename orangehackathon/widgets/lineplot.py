@@ -49,7 +49,7 @@ class LinePlot(OWWidget):
 
     @Inputs.table
     def storeTable(self,table):
-        if table != None: 
+        if table != None and hasattr(table, "domain"): 
             self.storedTable = table
             # 20191210 warning: reloading table may require replacing form
             # because set of features changed
