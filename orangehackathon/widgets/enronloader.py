@@ -18,7 +18,6 @@ from orangehackathon.utils.mail2tsv import parse_enron_mail_old as parse_enron_m
 
 class EnronLoader(OWWidget):
     DEFAULTDIRECTORY = os.path.normpath(os.path.join(os.path.dirname(__file__),"../../../enron/"))
-    print(DEFAULTDIRECTORY)
     YESSTRING = "yes"
 
     name = "Enron mail loader"

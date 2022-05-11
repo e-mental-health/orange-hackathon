@@ -1,7 +1,8 @@
 import re
 import sys
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+# from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from   matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 # alternatives: seaborn, plotnine, 
 from PyQt5.QtCore import Qt,pyqtSignal
 from PyQt5.QtWidgets import QFormLayout
@@ -53,7 +54,7 @@ class LinePlot(OWWidget):
             self.storedTable = table
             # 20191210 warning: reloading table may require replacing form
             # because set of features changed
-            # self.clearCanvas()
+            self.clearCanvas()
             self.drawGraph()
             self.drawWindow()
 
@@ -61,6 +62,7 @@ class LinePlot(OWWidget):
         if self.storedTable != None: self.drawGraph()
 
     def drawGraph(self):
+        self.clearCanvas()
         self.ax = self.figure.add_subplot(111)
         if self.connect == self.WORDS: self.plotWords()
         else: self.plotMessages()
@@ -75,17 +77,20 @@ class LinePlot(OWWidget):
             form.addRow("split by:",gui.comboBox(None, self, "coloredColumn",items=columnNames+[self.FIELDNAMENONE],callback=self.redraw))
             form.addRow("connect:",gui.comboBox(None, self, "connect",items=[self.MESSAGES,self.WORDS],callback=self.redraw))
             form.addRow(gui.button(None, self, 'draw', self.redraw))
+            form.addRow(gui.button(None, self, 'clear', self.clearCanvas))
 
     def clearCanvas(self):
-        while self.form.rowCount() > 1: 
-            print("deleting line plot row...")
-            self.form.removeRow(1)
+        #while self.form.rowCount() > 1: 
+        #    print("deleting line plot row...")
+        #    self.form.removeRow(1)
+        self.figure.clear()
+        self.figure.clf()
         self.canvas.draw()
         self.canvas.repaint()
 
     def getFieldValue(self,table,fieldName,rowId):
         if rowId < len(table):
-            for i in range(0,len(table.domain)):
+            for i in range(0, len(table.domain.variables)):
                 if table.domain[i].name == fieldName:
                     return(table[rowId].list[i])
             for i in range(0,len(table.domain.metas)):
@@ -138,7 +143,7 @@ class LinePlot(OWWidget):
         if self.storedTable == None or not hasattr(self.storedTable, "domain"): return
         columnNames = [x.name for x in self.storedTable.domain.variables]
         ax = self.ax
-        ax.clear()
+        ax.cla()
         lastMsgId = ""
         lastDataValue = None
         dataX = []

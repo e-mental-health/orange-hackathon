@@ -9,7 +9,7 @@ corpus = None
 phraseRefs = {}
 
 def getFieldValue(corpus,fieldName,rowId):
-    for i in range(0,len(corpus.domain)):
+    for i in range(0,len(corpus.domain.variables)):
         if corpus.domain[i].name == fieldName:
             return(corpus[rowId].list[i])
     for i in range(0,len(corpus.domain.metas)):
@@ -18,7 +18,7 @@ def getFieldValue(corpus,fieldName,rowId):
     sys.exit("getFieldValue: field name not found: "+fieldName)
 
 def setFieldValue(corpus,fieldName,rowId,value):
-    for i in range(0,len(corpus.domain)):
+    for i in range(0,len(corpus.domain.variables)):
         if corpus.domain[i].name == fieldName:
             # 20190830 assignment does not work: imutable object?
             corpus[rowId].list[i] = value
